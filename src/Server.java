@@ -3,6 +3,7 @@
 //Brendan Petras, Ethan Hamman, Konrad Wisniewski, Kyle Sutherland
 
 //Imports
+import java.util.ArrayList;
 
 
 /**
@@ -10,6 +11,32 @@
  *  creating new rooms when a user wants to start a chat.  It will
  *  also process all server commands. (ie: adding friends, starting chats)
  */
-public class Server{
+public class Server
+{
+  private ArrayList<String> user;
+  private ArrayList<Integer> connectedClientID;
+  private ArrayList<RoomServer> currentRooms;
+
+  public Server()
+  {
+
+  }
+
+
+  public RoomServer startRoomServer()
+  {
+      return null;
+  }
+
+  public void sendMessage(String msg)
+  {
+
+  }
+
+  public byte[] receiveMessaeg()
+  {
+      return null;
+  }
+
 
 }
