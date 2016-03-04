@@ -12,4 +12,35 @@
  */
 public class RoomClient{
 
+  private int roomClientID;
+
+  public RoomClient()
+  {
+
+  }
+
+  public void sendMessage(String msg)
+  {
+
+  }
+
+  public byte[] receiveMessage()
+  {
+    return null;
+  }
+
+  public boolean sendFile(String filename)
+  {
+    return false;
+  }
+
+  public byte[] encrypt(String msg)
+  {
+    return null;
+  }
+
+  public String decrypt(byte[] msg)
+  {
+    return null;
+  }
 }
