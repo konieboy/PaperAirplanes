@@ -2,8 +2,13 @@
 //Paper Airplanes Messenger
 //Brendan Petras, Ethan Hamman, Konrad Wisniewski, Kyle Sutherland
 
+/* Bugs to be fixed
+-In client, entering a empty string kills it all!
+*/
+
 //Imports
 import java.io.*;
+import java.net.*;
 
 /**
  *  Client class facilitates communication with the server and
@@ -21,11 +26,17 @@ import java.io.*;
 
 public class Client
 {
+
 	public static void main(String[] args)
 	{
+    Socket clientSocket;
+    DataOutputStream output;
+    BufferedReader input;
+
 		BufferedReader  userInput = new BufferedReader(new InputStreamReader(System.in));
-		String line = "woah!";
+		String line = "";
 		System.out.println("Welcome to paper airplanes!");
+
 	   while (!line.equals("/quit"))
 		{
 			try
@@ -50,18 +61,24 @@ public class Client
 					//make sure that there is at most one argument
 					if (command.length <= 2)
 					{
-						switch (command[0].toLowerCase())
+						if((command[0].toLowerCase()).equals("connect"))
 						{
-							case "connect": //do something
-								//connect "username"
-								break;
 
-							default: //do something else
-							  System.out.print("Invalid Command");
-								break;
+              //******************make this try/catch less ugly***********************
+              try
+              {
+                  clientSocket = new Socket("localhost", 3265); //for now we are only connecting to one computer
+                  output = new DataOutputStream(clientSocket.getOutputStream());
+                  input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+              }
+              catch (IOException e)
+              {
+                System.out.println(e);
+              }
+
+
 						}
 					}
-
 					else System.out.print("Invalid Command");
 					///connect command
 
