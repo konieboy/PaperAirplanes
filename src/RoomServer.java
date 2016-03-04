@@ -10,6 +10,38 @@
  *  the chat between users in the specific room.  It also tracks which
  *  users are in the chat.
  */
-public class RoomServer{
+public class RoomServer
+{
+  private int roomID;
+  private int roomType;
 
+  public RoomServer()
+  {
+
+  }
+
+  public void closeRoomServer()
+  {
+
+  }
+
+  public byte[] receiveMessage()
+  {
+      return null;
+  }
+
+  public byte[] receiveFile()
+  {
+      return null;
+  }
+
+  public void forwardMessage(byte[] msg)
+  {
+
+  }
+
+  public void forwardFile(String filename)
+  {
+
+  }
 }

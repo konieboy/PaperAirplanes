@@ -5,7 +5,6 @@
 //Imports
 import java.util.ArrayList;
 
-
 /**
  *  Server handles all the connected clients and is responsible for
  *  creating new rooms when a user wants to start a chat.  It will
@@ -33,7 +32,7 @@ public class Server
 
   }
 
-  public byte[] receiveMessaeg()
+  public byte[] receiveMessage()
   {
       return null;
   }
