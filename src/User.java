@@ -63,6 +63,8 @@ public class User{
   }
 
   public void loadSavedUser(String inputFile){
+      //Open file
 
+      //Read information
   }
 }
