@@ -17,22 +17,101 @@ import java.util.*;
  *  chats
  */
 
-
 /** Commands
   *  /quit 							   -- exit the program
   *  /connect "userName"               -- chat with a user from your friend list
   *  /addfriend "userName"             -- add a user to your friend list
   *  /remove "userName"		           -- delete a friend from your friend
-  *  /friendlist 		               -- show friends
+  *  /listfriends 		               -- show friends
   */
 
 public class Client
 {
 
+    public static void removeFriend(String friendName)
+    {
+      //check if is actually already added
+      if (!checkFriendList(friendName))
+      {
+        System.out.println( friendName + " has not been added as a friend. Add friends before you remove them!");
+      }
+      else
+      {
+          //remove user from the friend list
+          System.out.println( friendName + " has been found in your friend list...");
+          removeUser(friendName);
+          System.out.println( friendName +  " has successfully removed from your friend list..." );
+          printFriendList();
+      }
+    }
+
+    public static void removeUser(String friendName)
+    {
+      try
+      {
+      	File friendList = new File("user/friendList.txt");
+      	File tempFriendList = new File("temporaryFriendList.txt");
+      	BufferedReader reader = new BufferedReader(new FileReader(friendList));
+      	BufferedWriter writer = new BufferedWriter(new FileWriter(tempFriendList));
+
+      	String lineToRemove = friendName;
+      	String currentLine;
+
+      	while((currentLine = reader.readLine()) != null)
+        {
+      	    // trim newline when comparing with lineToRemove
+      	    String trimmedLine = currentLine.trim();
+      	    if(trimmedLine.equals(lineToRemove)) continue;
+      	    writer.write(currentLine + System.getProperty("line.separator"));
+      	}
+      	writer.close();
+      	reader.close();
+      	tempFriendList.renameTo(friendList);
+      }
+      catch (IOException e)
+      {
+          System.out.println(e);
+      }
+
+
+    }
+    public static void printFriendList()
+    {
+        File friendFile = new File("user/friendList.txt");
+        if(!friendFile.exists())
+        {
+          try
+          {
+            friendFile.createNewFile();
+          }
+          catch (IOException e)
+          {
+            System.out.println(e);
+          }
+        }
+
+        try
+        {
+            FileOutputStream oFile = new FileOutputStream("user/friendList.txt", true);
+            Scanner scanner = new Scanner(friendFile);
+            System.out.println("\n----- Friend List -----");
+            int  friendCount = 0;
+            while(scanner.hasNextLine())
+            {
+              friendCount++;
+              String testLine = scanner.nextLine();
+              System.out.println(friendCount + ") " + testLine);
+            }
+        }
+        catch (IOException e)
+        {
+            System.out.println(e);
+        }
+        System.out.print("\n");
+    }
 
     public static void addFriend(String friendName)
     {
-        System.out.println(friendName);
         //check if user is already in the friend list
         if (checkFriendList(friendName))
         {
@@ -42,15 +121,16 @@ public class Client
         {
             //add user to the friend list
             addUser(friendName);
+            printFriendList();
         }
     }
-       
-    public static void addUser(String friendName) 
+
+    public static void addUser(String friendName)
     {
         try
         {
             Writer output;
-            output = new BufferedWriter(new FileWriter("user/friendList.txt", true));     //clears file every time
+            output = new BufferedWriter(new FileWriter("user/friendList.txt", true));  
             output.append(friendName + "\n");
             output.close();
         }
@@ -58,15 +138,15 @@ public class Client
         {
             System.out.println(e);
         }
-    }  
-      
+    }
+
     //False: friend not found in the list
     //True: friend already added to list
     public static boolean checkFriendList(String friendName)
-    {   
+    {
         File friendFile = new File("user/friendList.txt");
         if(!friendFile.exists()) {
-             try 
+             try
              {
                 friendFile.createNewFile();
              }
@@ -74,18 +154,18 @@ public class Client
              {
                System.out.println(e);
              }
-        } 
-        try 
+        }
+        try
         {
-            FileOutputStream oFile = new FileOutputStream("user/friendList.txt", true); 
+            FileOutputStream oFile = new FileOutputStream("user/friendList.txt", true);
         }
         catch (IOException e)
         {
             System.out.println(e);
         }
-        
+
         //read through the friend list to search a duplicate name
-        try 
+        try
         {
 
                 Scanner scanner = new Scanner(friendFile);
@@ -93,12 +173,12 @@ public class Client
                 {
                       String testLine = scanner.nextLine();
                       if (testLine.equals(friendName))
-                      { 
+                      {
                           //matching name found, warn user
                           return true;
                       }
                 }
-                
+
         }
         catch (FileNotFoundException e)
         {
@@ -107,7 +187,7 @@ public class Client
         //no matching name found, add friend
         return false;
     }
-    
+
 	public static void main(String[] args)
 	{
     Socket clientSocket;
@@ -129,8 +209,6 @@ public class Client
 				//check if first letter of string is a "/"
 				if (line.substring(0, 1).equals("/"))
 				{
-					System.out.println("Special Command!");
-
 					//Split line into an array for easy parsing
 					//gets rid of spaces and special chars
 					String[] command = line.split("\\s+");
@@ -145,8 +223,6 @@ public class Client
 						/*connect*/
  						if((command[0].toLowerCase()).equals("connect"))
 						{
-
-              //******************make this try/catch less ugly***********************
               try
               {
                   clientSocket = new Socket("localhost", 3265); //for now we are only connecting to one computer
@@ -155,13 +231,11 @@ public class Client
               }
               catch (IOException e)
               {
-                System.out.println(e);
+                  System.out.println(e);
               }
-
-
 						}
 
-						/*quit*/
+				    /*quit*/
   					if((command[0].toLowerCase()).equals("quit") || (command[0].toLowerCase()).equals("exit") || (command[0].toLowerCase()).equals("q") )
 						{
 							//Exits the program
@@ -172,16 +246,44 @@ public class Client
 						/*add a friend*/
 						if((command[0].toLowerCase()).equals("addfriend") || (command[0].toLowerCase()).equals("add") || (command[0].toLowerCase()).equals("af") )
 						{
-							//Adds a friend to your friend list
-							System.out.println("adding friend: " + command[1]);
-                            addFriend(command[1]);
+              //check to see that user added an arg
+              if (command.length <= 1)
+              {
+                System.out.println("Please add a user name after your '/add' command.");
+              }
+              else
+              {
+                //Adds a friend to your friend list
+  							System.out.println("adding friend: " + command[1]);
+                addFriend(command[1]);
+              }
+						}
+
+            /*list friends*/
+						if((command[0].toLowerCase()).equals("printfriends") || (command[0].toLowerCase()).equals("listfriends") || (command[0].toLowerCase()).equals("lf") )
+						{
+              printFriendList();
+						}
+
+            /*remove a friend*/
+						if((command[0].toLowerCase()).equals("r") || (command[0].toLowerCase()).equals("remove") || (command[0].toLowerCase()).equals("delete") )
+						{
+              if (command.length <= 1)
+              {
+                System.out.println("Please add a user name after your '/remove' command.");
+              }
+              else
+              {
+                removeFriend(command[1]);
+              }
 						}
 					}
-					else System.out.print("Invalid Command");
-					///connect command
-
-					//user.addFriend
+					else System.out.println("Too many arguments!");
 				}
+        else
+        {
+          System.out.println("Command was not recognized. Please consider your syntax or spelling. Refer to the readme for a list of commands.");
+        }
 
 			}
 			catch (IOException ioe)
@@ -191,5 +293,5 @@ public class Client
 
 		}
 	}
- 
+
 }
