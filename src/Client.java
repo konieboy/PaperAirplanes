@@ -9,6 +9,7 @@
 //Imports
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 /**
  *  Client class facilitates communication with the server and
@@ -27,6 +28,69 @@ import java.net.*;
 public class Client
 {
 
+
+    public static void addFriend(String friendName)
+    {
+        System.out.println(friendName);
+        //check if user is already in the friend list
+        if (checkFriendList(friendName))
+        {
+            System.out.println( friendName + " is already in your friend list." + friendName + "was not added to your friend list!");
+        }
+        //add user if he is not
+        
+        
+    }
+       
+    //False: friend not found in the list
+    //True: friend already added to list
+    public static boolean checkFriendList(String friendName)
+    {
+        
+        File friendFile = new File("user/friendList.txt");
+        if(!friendFile.exists()) {
+             try 
+             {
+                friendFile.createNewFile();
+             }
+             catch (IOException e)
+             {
+               System.out.println(e);
+             }
+        } 
+        try 
+        {
+            FileOutputStream oFile = new FileOutputStream("user/friendList.txt", true); 
+        }
+        catch (IOException e)
+        {
+            System.out.println(e);
+        }
+        
+        //read through the friend list to search a duplicate name
+        try 
+        {
+
+                Scanner scanner = new Scanner(friendFile);
+                while(scanner.hasNextLine())
+                {
+                      String testLine = scanner.nextLine();
+                      if (testLine.equals(friendName))
+                      { 
+                          //matching name found, warn user
+                          return true;
+                      }
+                }
+                
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println(e);
+        }
+        //no matching name found, add friend
+        return false;
+    }
+    
 	public static void main(String[] args)
 	{
     Socket clientSocket;
@@ -61,7 +125,8 @@ public class Client
 					//make sure that there is at most one argument
 					if (command.length <= 2)
 					{
-						if((command[0].toLowerCase()).equals("connect"))
+						/*connect*/
+ 						if((command[0].toLowerCase()).equals("connect"))
 						{
 
               //******************make this try/catch less ugly***********************
@@ -78,12 +143,25 @@ public class Client
 
 
 						}
+
+						/*quit*/
+  					if((command[0].toLowerCase()).equals("quit") || (command[0].toLowerCase()).equals("exit") || (command[0].toLowerCase()).equals("q") )
+						{
+							//Exits the program
+							System.out.println("Quiting Paper Planes...");
+							System.exit(0);
+						}
+
+						/*add a friend*/
+						if((command[0].toLowerCase()).equals("addfriend") || (command[0].toLowerCase()).equals("add") || (command[0].toLowerCase()).equals("af") )
+						{
+							//Adds a friend to your friend list
+							System.out.println("adding friend: " + command[1]);
+                            addFriend(command[1]);
+						}
 					}
 					else System.out.print("Invalid Command");
 					///connect command
-
-
-
 
 					//user.addFriend
 				}
@@ -96,4 +174,5 @@ public class Client
 
 		}
 	}
+ 
 }
