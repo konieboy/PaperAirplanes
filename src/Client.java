@@ -20,9 +20,10 @@ import java.util.*;
 
 /** Commands
   *  /quit 							   -- exit the program
-  *  /connect "userName"   -- chat with a user from your friend list
-  *  /addfriend "userName" -- add a user to your friend list
-	*  /remove "userName"		 -- delete a friend from your friend
+  *  /connect "userName"               -- chat with a user from your friend list
+  *  /addfriend "userName"             -- add a user to your friend list
+  *  /remove "userName"		           -- delete a friend from your friend
+  *  /friendlist 		               -- show friends
   */
 
 public class Client
@@ -35,18 +36,34 @@ public class Client
         //check if user is already in the friend list
         if (checkFriendList(friendName))
         {
-            System.out.println( friendName + " is already in your friend list." + friendName + "was not added to your friend list!");
+            System.out.println( friendName + " is already in your friend list. " + friendName + " was not added to your friend list!");
         }
-        //add user if he is not
-        
-        
+        else
+        {
+            //add user to the friend list
+            addUser(friendName);
+        }
     }
        
+    public static void addUser(String friendName) 
+    {
+        try
+        {
+            Writer output;
+            output = new BufferedWriter(new FileWriter("user/friendList.txt", true));     //clears file every time
+            output.append(friendName + "\n");
+            output.close();
+        }
+        catch (IOException e)
+        {
+            System.out.println(e);
+        }
+    }  
+      
     //False: friend not found in the list
     //True: friend already added to list
     public static boolean checkFriendList(String friendName)
-    {
-        
+    {   
         File friendFile = new File("user/friendList.txt");
         if(!friendFile.exists()) {
              try 
