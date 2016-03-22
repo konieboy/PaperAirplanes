@@ -51,8 +51,8 @@ public class Client
           //remove user from the friend list
           System.out.println( friendName + " has been found in your friend list...");
           removeUser(friendName);
-          printFriendList();
           System.out.println( friendName +  " has successfully removed from your friend list..." );
+          printFriendList();
       }
     }
 
@@ -168,7 +168,7 @@ public class Client
         }
         try
         {
-            FileOutputStream oFile = new FileOutputStream("user/friendList.txt", true);
+            FileOutputStream oFile = new FileOutputStream(filePath, true);
         }
         catch (IOException e)
         {
@@ -288,6 +288,10 @@ public class Client
                 removeFriend(command[1]);
               }
 						}
+            else
+            {
+              System.out.println("Command was not recognized. Please consider your syntax or spelling. Refer to the readme for a list of commands.");
+            }
 					}
 					else System.out.println("Too many arguments!");
 				}
