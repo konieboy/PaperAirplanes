@@ -25,8 +25,14 @@ import java.util.*;
   *  /listfriends 		               -- show friends
   */
 
+/* Things that need to be added
+   -Check that friend you want to add is also in the list of the registered users
+   -
+*/
+
 public class Client
 {
+    static final String filePath = "friendList.txt";
 
     public static void removeFriend(String friendName)
     {
@@ -35,13 +41,18 @@ public class Client
       {
         System.out.println( friendName + " has not been added as a friend. Add friends before you remove them!");
       }
+
+
+      /********NEEDS TO CHECK IF FRIEND IS A REGESTERED USER!!!!!!!*/
+
+
       else
       {
           //remove user from the friend list
           System.out.println( friendName + " has been found in your friend list...");
           removeUser(friendName);
-          System.out.println( friendName +  " has successfully removed from your friend list..." );
           printFriendList();
+          System.out.println( friendName +  " has successfully removed from your friend list..." );
       }
     }
 
@@ -49,7 +60,7 @@ public class Client
     {
       try
       {
-      	File friendList = new File("user/friendList.txt");
+      	File friendList = new File(filePath);
       	File tempFriendList = new File("temporaryFriendList.txt");
       	BufferedReader reader = new BufferedReader(new FileReader(friendList));
       	BufferedWriter writer = new BufferedWriter(new FileWriter(tempFriendList));
@@ -77,7 +88,7 @@ public class Client
     }
     public static void printFriendList()
     {
-        File friendFile = new File("user/friendList.txt");
+        File friendFile = new File(filePath);
         if(!friendFile.exists())
         {
           try
@@ -92,7 +103,7 @@ public class Client
 
         try
         {
-            FileOutputStream oFile = new FileOutputStream("user/friendList.txt", true);
+            FileOutputStream oFile = new FileOutputStream(filePath, true);
             Scanner scanner = new Scanner(friendFile);
             System.out.println("\n----- Friend List -----");
             int  friendCount = 0;
@@ -130,7 +141,7 @@ public class Client
         try
         {
             Writer output;
-            output = new BufferedWriter(new FileWriter("user/friendList.txt", true));  
+            output = new BufferedWriter(new FileWriter(filePath, true));
             output.append(friendName + "\n");
             output.close();
         }
@@ -144,7 +155,7 @@ public class Client
     //True: friend already added to list
     public static boolean checkFriendList(String friendName)
     {
-        File friendFile = new File("user/friendList.txt");
+        File friendFile = new File(filePath);
         if(!friendFile.exists()) {
              try
              {
