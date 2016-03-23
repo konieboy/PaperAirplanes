@@ -5,6 +5,7 @@
 //Imports
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.io.*;
 
 /**
  *  User class keeps track of the users profile while they are logged into
@@ -33,38 +34,94 @@ public class User{
       rsaPrivateKey = "";
       friendsList = null;
 
-      initNewUser();
+      initUser();
   }
 
-  public void initNewUser(){
+  public void initUser(){
+    //Ask if they want to Create new user or load profile
     //If user profile is found in directory:
     //loadSavedUser(fileToProfile)
 
-    //Else:
-    //Ask if they want to login
-      //getUserFromServer(username)
-    //or register
-      //createNewUser();
+    System.out.print("(C)reate new user or (L)oad user profile: ");
+    Scanner input = new Scanner(System.in);
+    String option = input.nextLine().toLowerCase();
+
+    switch(option){
+      case "c": createNewUser();
+               break;
+      case "l": loadSavedUser();
+               break;
+   }
+
   }
 
   public void createNewUser(){
       Scanner userIn = new Scanner(System.in);
 
       //Pick username
-      System.out.print("Choose a username: ");
-      username = userIn.nextLine();
+      if(username.equals("")){
+         System.out.print("Choose a username: ");
+         username = userIn.nextLine();
+      }
+      String fileName = username+".txt";
 
       //Pick password
       System.out.print("Choose a password: ");
       password = userIn.nextLine();
       //Hash password - Implementing later
+      try{
+         Writer wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"));
+         wr.write(username + "\n");
+         wr.write(password + "\n");
+         wr.write(passwordHash + "\n");
+         wr.write(userID + "\n");
+         wr.write(rsaPubKey + "\n");
+         wr.write(rsaPrivateKey + "\n");
+
+         wr.close();
+      }catch(IOException e){
+         return;
+      }
+
 
       //Generate RSA keys - Implementing later
   }
 
-  public void loadSavedUser(String inputFile){
-      //Open file
+  public void loadSavedUser(){
+     Scanner userIn = new Scanner(System.in);
 
-      //Read information
+     System.out.print("Enter your username: ");
+     username = userIn.nextLine();
+     String fileName = (username + ".txt");
+      //Open file, if not there, create a new user
+      //If file exists, read file and set variables
+      try{
+         FileReader fr = new FileReader(fileName);
+         BufferedReader br = new BufferedReader(fr);
+
+         /*temporary file setup
+         "username"
+         "password"
+         "passwordHash"
+         "userID"
+         "Pubkey"
+         "PrivKey"
+
+         */
+         username = br.readLine();
+         password = br.readLine();
+         passwordHash = br.readLine();
+         userID = Integer.parseInt(br.readLine());
+         rsaPubKey = br.readLine();
+         rsaPrivateKey = br.readLine();
+
+      }catch(FileNotFoundException e){
+         System.out.println("No user profile saved, creating new user.");
+         createNewUser();
+         return;
+      }catch(IOException e){
+         System.out.println("Error reading file: " + fileName);
+         return;
+      }
   }
 }

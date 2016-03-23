@@ -201,13 +201,15 @@ public class Client
 
 	public static void main(String[] args)
 	{
-    Socket clientSocket;
-    DataOutputStream output;
-    BufferedReader input;
+       Socket clientSocket;
+       DataOutputStream output;
+       BufferedReader input;
 
 		BufferedReader  userInput = new BufferedReader(new InputStreamReader(System.in));
 		String line = "";
 		System.out.println("Welcome to paper airplanes!");
+
+      User user = new User();
 
 	   while (!line.equals("/quit"))
 		{
