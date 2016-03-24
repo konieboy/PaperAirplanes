@@ -209,6 +209,7 @@ public class Client
 		String line = "";
 		System.out.println("Welcome to paper airplanes!");
 
+      //Initialize the user
       User user = new User();
 
 	   while (!line.equals("/quit"))

@@ -87,17 +87,23 @@ public class User{
       //Generate RSA keys - Implementing later
   }
 
+  /*
+      The server will need to keep the login file
+      Right now it is a plaintext file in the src folder
+  */
   public void loadSavedUser(){
      Scanner userIn = new Scanner(System.in);
 
      System.out.print("Enter your username: ");
      username = userIn.nextLine();
      String fileName = (username + ".txt");
+
+     System.out.print("Enter your password: ");
+     String checkPass = userIn.nextLine();
       //Open file, if not there, create a new user
       //If file exists, read file and set variables
       try{
-         FileReader fr = new FileReader(fileName);
-         BufferedReader br = new BufferedReader(fr);
+         BufferedReader br = new BufferedReader(new FileReader(fileName));
 
          /*temporary file setup
          "username"
@@ -122,6 +128,22 @@ public class User{
       }catch(IOException e){
          System.out.println("Error reading file: " + fileName);
          return;
+      }
+
+      //Password verification
+      if(!password.equals(checkPass)){
+         for(int i =0; i<3;i++){
+            System.out.print("Wrong password, "+ (3-i)+ " tries left: ");
+            checkPass = userIn.nextLine();
+            if(password.equals(checkPass)){
+               break;
+            }
+            if(i==2){
+               System.out.println("You have incorrectly entered your password too many times.");
+               System.exit(0);
+            }
+         }
+
       }
   }
 }
