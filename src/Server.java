@@ -23,10 +23,17 @@ public class Server
   private ArrayList<RoomServer> currentRooms;
   private static int BUFFERSIZE = 256;
 
-  public static void main(String argsp[])
+  public static void main(String args[])
   {
 
+      if(args.length != 1)
+      {
+          System.out.println("Invalid Input");
+          System.out.println("Requires <Port Number>");
+      }
+
     // Initialize buffers and coders for channel receive and send
+    portNumber = Integer.parseInt(args[0]);
     String line = "";
     Charset charset = Charset.forName( "us-ascii" );
     CharsetDecoder decoder = charset.newDecoder();
@@ -45,7 +52,7 @@ public class Server
        channel.configureBlocking(false);
 
        //Bind to port
-       InetSocketAddress isa = new InetSocketAddress(3265);
+       InetSocketAddress isa = new InetSocketAddress(portNumber);
        channel.socket().bind(isa);
 
        //Register select server, wait for connection requests
