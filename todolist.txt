@@ -1,0 +1,8 @@
+User Accounts
+encryption of login info
+FriendsList
+File Transfer, all types
+friends list online/offline status
+private chat with invite only
+public chat
+encrypted message sending
