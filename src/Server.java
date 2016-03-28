@@ -33,7 +33,7 @@ public class Server
       }
 
     // Initialize buffers and coders for channel receive and send
-    portNumber = Integer.parseInt(args[0]);
+    int portNumber = Integer.parseInt(args[0]);
     String line = "";
     Charset charset = Charset.forName( "us-ascii" );
     CharsetDecoder decoder = charset.newDecoder();
