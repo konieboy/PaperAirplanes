@@ -209,6 +209,8 @@ public class Client
 		String line = "";
 		System.out.println("Welcome to paper airplanes!");
 
+        ExecutorService pool = Executors.newFixedThreadPool(2);   //ConcurrentThreads ExecutorService
+
       //Initialize the user
       User user = new User();
 
