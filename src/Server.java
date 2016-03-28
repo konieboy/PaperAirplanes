@@ -80,7 +80,7 @@ public class Server
 
                     SocketChannel cchannel = ((ServerSocketChannel)key.channel()).accept();
                     cchannel.configureBlocking(false);
-                    System.out.println("Accept conncection from " + cchannel.socket().toString());
+                    System.out.println("Accept connection from " + cchannel.socket().toString());
 
                     // Register the new connection for read operation
                     cchannel.register(selector, SelectionKey.OP_READ);

@@ -10,6 +10,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 /**
  *  Client class facilitates communication with the server and
@@ -201,21 +202,20 @@ public class Client
 
 	public static void main(String[] args)
 	{
-    Socket clientSocket;
-    DataOutputStream output;
-    BufferedReader input;
+        Socket clientSocket;
+        DataOutputStream output;
+        BufferedReader input;
 
-		BufferedReader  userInput = new BufferedReader(new InputStreamReader(System.in));
-		String line = "";
-		System.out.println("Welcome to paper airplanes!");
-		
-		
+        BufferedReader  userInput = new BufferedReader(new InputStreamReader(System.in));
+        String line = "";
+        System.out.println("Welcome to paper airplanes!");
+
       //Initialize the user
       User user = new User();
 
 	   while (!line.equals("/quit"))
 		{
-			try
+            try
 			{
 		   	System.out.print("Paper Planes: ");
 				line = userInput.readLine();
