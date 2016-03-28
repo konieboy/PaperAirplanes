@@ -208,6 +208,10 @@ public class Client
 		BufferedReader  userInput = new BufferedReader(new InputStreamReader(System.in));
 		String line = "";
 		System.out.println("Welcome to paper airplanes!");
+		
+		
+      //Initialize the user
+      User user = new User();
 
 	   while (!line.equals("/quit"))
 		{
