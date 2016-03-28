@@ -201,15 +201,28 @@ public class Client
 
 	public static void main(String[] args)
 	{
-    Socket clientSocket;
-    DataOutputStream output;
-    BufferedReader input;
+
+        String serverIPAdress;
+        int portNumber;
+
+        Socket clientSocket;
+        DataOutputStream output;
+        BufferedReader input;
 
 		BufferedReader  userInput = new BufferedReader(new InputStreamReader(System.in));
 		String line = "";
 		System.out.println("Welcome to paper airplanes!");
-		
-		
+
+    if(args.length != 2)
+    {
+        System.out.println("Invalid Arguments");
+        System.out.println("Require <IP Address> <Port Number>");
+        System.exit(0);
+    }
+
+    serverIPAdress = args[0];
+    portNumber = Integer.parseInt(args[1]);
+
       //Initialize the user
       User user = new User();
 
@@ -240,7 +253,7 @@ public class Client
 						{
               try
               {
-                  clientSocket = new Socket("localhost", 3265); //for now we are only connecting to one computer
+                  clientSocket = new Socket(serverIPAdress, portNumber); //for now we are only connecting to one computer
                   output = new DataOutputStream(clientSocket.getOutputStream());
                   input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
               }
