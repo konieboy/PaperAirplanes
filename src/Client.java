@@ -237,99 +237,19 @@ public class Client
         return false;
     }
 
-	public static void userInputLoop(String line, BufferedReader  userInput){
-		while (!line.equals("/quit"))
+	public static String userInputLoop(BufferedReader  userInput){
+ 		try
  		{
- 			try
- 			{
  		   	System.out.print("Paper Planes: ");
- 				line = userInput.readLine();
- 				System.out.println(line);
-
- 				//check if first letter of string is a "/"
- 				if (line.substring(0, 1).equals("/"))
- 				{
- 					//Split line into an array for easy parsing
- 					//gets rid of spaces and special chars
- 					String[] command = line.split("\\s+");
- 					for (int i = 0; i < command.length; i++)
- 					{
- 						command[i] = command[i].replaceAll("[^\\w]", "");
- 					}
- 					//System.out.println(command[0] + command[1]);
- 					//make sure that there is at most one argument
- 			if (command.length <= 2)
- 			{
- 			/*connect*/
- 			if((command[0].toLowerCase()).equals("connect"))
- 			{
-
-
- 			  String serverInput = command[1];
- 			  //check to see the user to connect to is on the server
- 			  isRegisteredUser(serverInput);
- 			}
-
-
-
-
- 		    /*quit*/
- 		      if((command[0].toLowerCase()).equals("quit") || (command[0].toLowerCase()).equals("exit") || (command[0].toLowerCase()).equals("q") )
- 				{
- 					//Exits the program
- 					System.out.println("Quiting Paper Planes...");
- 					System.exit(0);
- 				}
-
- 				/*add a friend*/
- 				if((command[0].toLowerCase()).equals("addfriend") || (command[0].toLowerCase()).equals("add") || (command[0].toLowerCase()).equals("af") )
- 				{
-               //check to see that user added an arg
-               if (command.length <= 1)
-               {
-                 System.out.println("Please add a user name after your '/add' command.");
-               }
-               else
-               {
-                 //Adds a friend to your friend list
-   							System.out.println("adding friend: " + command[1]);
-                 addFriend(command[1]);
-               }
- 						}
-
-             /*list friends*/
- 						if((command[0].toLowerCase()).equals("printfriends") || (command[0].toLowerCase()).equals("listfriends") || (command[0].toLowerCase()).equals("lf") )
- 						{
-               printFriendList();
- 						}
-
-             /*remove a friend*/
- 						if((command[0].toLowerCase()).equals("r") || (command[0].toLowerCase()).equals("remove") || (command[0].toLowerCase()).equals("delete") )
- 						{
-               if (command.length <= 1)
-               {
-                 System.out.println("Please add a user name after your '/remove' command.");
-               }
-               else
-               {
-                 removeFriend(command[1]);
-               }
- 						}
- 					}
- 					else System.out.println("Too many arguments!");
- 				}
-
- 			}
- 			catch (IOException ioe)
- 			{
- 				System.out.println("Invalid Command!");
- 			}
-
- 		}
+ 			String line = userInput.readLine();
+			return line;
+		}catch(Exception e){
+			System.out.println("Something went wrong :(");
+		}return "";
 	}
 
 	public static void processUserInput(String lineIn){
-
+		System.out.println(lineIn);
 	}
 
 	public static void serverInputLoop(DataOutputStream output, BufferedReader input){
@@ -356,7 +276,6 @@ public class Client
         serverIPAdress = args[0];
         portNumber = Integer.parseInt(args[1]);
 
-		String line = "";
 		System.out.println("Welcome to paper airplanes!");
 
 		try
@@ -372,20 +291,19 @@ public class Client
 		//Initialize the user
 		User user = new User();
 
+		//Callable objects
+		Callable<String> userInputTask = () -> {
+				return userInputLoop(userInput);
+		};
+
 		//Future objects
-		Future userInputFuture;
+		Future<String> userInputFuture;
 		Future serverInputFuture;
 
 		String lastLine = "";
 
-		while(lastLine != "/quit"){
-			userInputFuture = threadPool.submit(() -> {
-				try{
-					userInputLoop(line, userInput); //This in 1st thread
-				} catch(Exception e){
-					System.out.println("Something went wrong :(");
-				}
-			});
+		while(!lastLine.equals("/quit")){
+			userInputFuture = threadPool.submit(userInputTask);
 
 			serverInputFuture = threadPool.submit(() -> {
 				try{
@@ -395,15 +313,21 @@ public class Client
 				}
 			});
 
-			while(!userInputFuture.isDone() && !serverInputFuture.isDone());
+			//while(!userInputFuture.isDone() && !serverInputFuture.isDone());
+			while(!userInputFuture.isDone());
 
 			if(userInputFuture.isDone()){
 				//process user input
-				//lastLine = userInputFuture.get();
-				//processUserInput(lastLine);
+				try{
+					lastLine = userInputFuture.get();
+				}catch(Exception e){
+					System.out.println("Task interuppted!");
+				}
+				processUserInput(lastLine);
 			}if(serverInputFuture.isDone()){
 				//process server input
 			}
 		}
+		threadPool.shutdownNow();
 	}
 }
