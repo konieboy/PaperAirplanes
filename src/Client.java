@@ -169,7 +169,7 @@ public class Client
         {
             System.out.println( friendName + " is already in your friend list. " + friendName + " was not added to your friend list!");
         }
-        if (isRegisteredUser(friendName) == false)
+        else if (isRegisteredUser(friendName) == false)
         {
             System.out.println( friendName + " is not a registered user. " + friendName + " was not added to your friend list!");
         }   	
