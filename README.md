@@ -14,12 +14,9 @@ Features
 -loops untill the user exits with /quit
 
 How to run
--Initialize the java server using the command "java Server"
--Initialize the client using the command "java Client"
+-Initialize the java server using the command "java Server <port number>"
+-Initialize the client using the command "java Client <ip address> <port number>"
 -Enter the "/connect username"
 -Exit witht the command "/quit"
-
-notes
--the program is hardcoded to use port 3265 on the localhost ip
 
 Version 0.2 will be able to send messages to the server!
