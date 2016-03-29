@@ -26,11 +26,12 @@ public class Server
   public static void main(String args[])
   {
 
-      if(args.length != 1)
-      {
-          System.out.println("Invalid Input");
-          System.out.println("Requires <Port Number>");
-      }
+	  if(args.length != 1)
+	  {
+		  System.out.println("Invalid Input");
+		  System.out.println("Requires <Port Number>");
+		  System.exit(0);
+	  }
 
     // Initialize buffers and coders for channel receive and send
     int portNumber = Integer.parseInt(args[0]);
@@ -58,11 +59,11 @@ public class Server
        //Register select server, wait for connection requests
        channel.register(selector, SelectionKey.OP_ACCEPT);
 
-    // Wait for something happen among all registered sockets
+        // Wait for something happen among all registered sockets
         boolean terminated = false;
         while (!terminated)
         {
-            if (selector.select(500) < 0)
+        	if (selector.select(500) < 0)
             {
                 System.out.println("select() failed");
                 System.exit(1);
@@ -91,6 +92,7 @@ public class Server
 
                     // Register the new connection for read operation
                     cchannel.register(selector, SelectionKey.OP_READ);
+                   
                 }
                else{
                     SocketChannel cchannel = (SocketChannel)key.channel();
@@ -98,7 +100,6 @@ public class Server
                         Socket socket = cchannel.socket();
 
                         // Open input and output streams
-
                         inBuffer = ByteBuffer.allocateDirect(BUFFERSIZE);
                         cBuffer = CharBuffer.allocate(BUFFERSIZE);
 
@@ -106,7 +107,7 @@ public class Server
                         bytesRecv = cchannel.read(inBuffer);
                         if (bytesRecv <= 0){
                             System.out.println("read() error, or connection closed");
-                            key.cancel();  // deregister the socket
+                            key.cancel();  //deregister the socket
                             continue;
                         }
 
@@ -115,8 +116,29 @@ public class Server
                         cBuffer.flip();
                         line = cBuffer.toString();
                         System.out.print("TCP Client: " + line);
+                       
+                        //////**********************************
+                        
+                        //detect that the client wants to add a new user
+                        if(line.contains("regestered user:"))
+                        {                      	                            
+                        	line = line.replace("regestered user:","");
+                            System.out.println("Checking to make sure that " + line + " is a regestered user...");
+                            if(searchForName(line))
+                            {
+                                cchannel.write(encoder.encode(CharBuffer.wrap("true\n")));     
 
-                        if(line.equals("help\n")){
+                                System.out.println("User was found");
+                            }
+                            else
+                            {
+                                System.out.println("User is not a regestered user!");
+                                cchannel.write(encoder.encode(CharBuffer.wrap("false\n")));       
+
+                            }                          	                                  
+                        }
+                        
+                        if(line.contains("help")){
                            cchannel.write(encoder.encode(CharBuffer.wrap("Commands:\nterminate -Terminates the connection\nlist -Lists the files in the current dir\nget <filename> -Retrieves file from the server\nend\n")));
                         }else if(line.equals("list\n")){                   //Executes ls, then reads the temp file and prints the output to the server
                            try{
@@ -135,6 +157,7 @@ public class Server
                                  cchannel.write(encoder.encode(CharBuffer.wrap(bLine + '\n')));
                                  bLine = br.readLine();
                               }
+                              br.close();
                                cchannel.write(encoder.encode(CharBuffer.wrap("end\n")));
                            }catch(IOException e){
                               System.out.println("Error while reading the list");
@@ -167,9 +190,14 @@ public class Server
                               System.out.println("File error");
                            }
 
-                        }else{
+                           
+                           
+                        }
+                        
+                        
+                        else{
                            //Not a command
-                            cchannel.write(encoder.encode(CharBuffer.wrap("Command not recognized: " + line + "end\n")));
+                           //cchannel.write(encoder.encode(CharBuffer.wrap("Command not recognized: " + line + "end\n")));
                         }
 
                      }
@@ -209,6 +237,29 @@ public class Server
   {
       return null;
   }
+
+  private static Boolean searchForName(String name) throws FileNotFoundException {
+	  
+	  try
+	  {
+	  
+		  File file = new File("registeredUsers.txt");
+		  Scanner input = new Scanner(file);
+		  while(input.hasNextLine()) {
+			  String lineFromFile = input.nextLine();
+			  if (lineFromFile.equals(name))
+			  {
+				  return true;
+			  }
+		   }
+		  
+	  }  
+	  catch (IOException e)
+	    {
+	        System.out.println(e);
+	    }
+	  return false;
+}
 
 
 }
