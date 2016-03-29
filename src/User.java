@@ -37,6 +37,17 @@ public class User{
       initUser();
   }
 
+  public String export(){
+      String info = ("" + userID + "\n" + username + "\n" + password + "\n" + passwordHash + "\n" + rsaPubKey + "\n" + rsaPrivateKey + "\n");
+
+      for(int i = 0; i < friendsList.length; i++)
+      {
+          info = info + friendsList[i] + "\n";
+      }
+
+      return info;
+  }
+
   public void initUser(){
     //Ask if they want to Create new user or load profile
     //If user profile is found in directory:
