@@ -23,7 +23,7 @@ import java.util.concurrent.*;
   *  /connect "userName"               -- chat with a user from your friend list
   *  /addfriend "userName"             -- add a user to your friend list
   *  /remove "userName"		           -- delete a friend from your friend
-  *  /printfriends 		               -- show friends
+  *  /listfriends 		               -- show friends
   */
 
 /* Things that need to be added
@@ -42,7 +42,7 @@ public class Client
 
     static final String filePath = "friendList.txt";
 
-    /*public static Boolean isRegisteredUser(String friendName)
+    public static Boolean isRegisteredUser(String friendName)
     {
     	try
 		  {
@@ -51,7 +51,7 @@ public class Client
 
 			  String serverInput;
 			 // Send to the server
-			  output.writeBytes("/add " + friendName);
+			  output.writeBytes("regestered user:" + friendName);
 
 
 			  // Getting response from the server
@@ -76,90 +76,195 @@ public class Client
 		  }
     	return null;
     }
-	*/
 
-	private static boolean processUserInput(String line){
-		if (line.substring(0, 1).equals("/"))
-		{
-			//Split line into an array for easy parsing
-			//gets rid of spaces and special chars
-			String[] command = line.split("\\s+");  //space
-			command[0] = command[0].replaceAll("[^\\w]", "");
+    public static void removeFriend(String friendName)
+    {
+      //check if is actually already added
+      if (!checkFriendList(friendName))
+      {
+        System.out.println( friendName + " has not been added as a friend. Add friends before you remove them!");
+      }
 
-			//System.out.println(command[0] + command[1]);
-			//make sure that there is at most one argument
-			if (command.length <= 2)
-			{
-				/*connect*/
-				if((command[0].toLowerCase()).equals("connect"))
-				{
-					return true;
-				}
-				/*quit*/
-			  	if((command[0].toLowerCase()).equals("quit"))
-				{
-					//Exits the program
-					System.out.println("Quiting Paper Planes...");
-					System.exit(0);
-				}
+      else
+      {
+          //remove user from the friend list
+          System.out.println( friendName + " has been found in your friend list...");
+          removeUser(friendName);
+          System.out.println( friendName +  " has successfully removed from your friend list..." );
+          printFriendList();
+      }
+    }
 
-				/*add a friend*/
-				if((command[0].toLowerCase()).equals("addfriend"))
-				{
-			  //check to see that user added an arg
-					if (command.length <= 1)
-				  	{
-						System.out.println("Please add a user name after your '/add' command.");
-						return false;
-				  	}
-				  	else
-				  	{
-						//Adds a friend to your friend list
-						return true;
-				  	}
-				}
+    public static void removeUser(String friendName)
+    {
+    try
+    {
+        File friendList = new File(filePath);
+        File tempFriendList = new File("temporaryFriendList.txt");
+        BufferedReader reader = new BufferedReader(new FileReader(friendList));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFriendList));
 
-			/*list friends*/
-				if((command[0].toLowerCase()).equals("printfriends"))
-				{
-			  		return true;
-				}
+        String lineToRemove = friendName;
+        String currentLine;
 
-			/*remove a friend*/
-				if((command[0].toLowerCase()).equals("remove"))
-				{
-			  		if (command.length <= 1)
-			  		{
-						System.out.println("Please add a user name after your '/remove' command.");
-						return false;
-			  		}
-			  		else
-			  		{
-						return true;
-				  	}
-				}
-			}
-			else
-			{
-				System.out.println("Too many arguments!");
-				return false;
-			}
-		}
-		return false;
+        while((currentLine = reader.readLine()) != null)
+        {
+            // trim newline when comparing with lineToRemove
+            String trimmedLine = currentLine.trim();
+            if(trimmedLine.equals(lineToRemove)) continue;
+            writer.write(currentLine + System.getProperty("line.separator"));
+        }
+        writer.close();
+        reader.close();
+        tempFriendList.renameTo(friendList);
+    }
+    catch (IOException e)
+    {
+        System.out.println(e);
+    }
+
+
+    }
+    public static void printFriendList()
+    {
+        File friendFile = new File(filePath);
+        if(!friendFile.exists())
+        {
+            try
+            {
+                friendFile.createNewFile();
+            }
+                catch (IOException e)
+            {
+                System.out.println(e);
+            }
+        }
+
+        try
+        {
+            FileOutputStream oFile = new FileOutputStream(filePath, true);
+            Scanner scanner = new Scanner(friendFile);
+            System.out.println("\n----- Friend List -----");
+            int  friendCount = 0;
+            while(scanner.hasNextLine())
+            {
+              friendCount++;
+              String testLine = scanner.nextLine();
+              System.out.println(friendCount + ") " + testLine);
+            }
+            oFile.close();
+            scanner.close();
+        }
+        catch (IOException e)
+        {
+            System.out.println(e);
+        }
+        System.out.print("\n");
+
+    }
+
+    public static void addFriend(String friendName)
+    {
+        //check if user is already in the friend list
+        if (checkFriendList(friendName))
+        {
+            System.out.println( friendName + " is already in your friend list. " + friendName + " was not added to your friend list!");
+        }
+        else if (isRegisteredUser(friendName) == false)
+        {
+            System.out.println( friendName + " is not a registered user. " + friendName + " was not added to your friend list!");
+        }
+        else
+        {
+            //add user to the friend list
+            addUser(friendName);
+            printFriendList();
+        }
+    }
+
+    public static void addUser(String friendName)
+    {
+        try
+        {
+            Writer output;
+            output = new BufferedWriter(new FileWriter(filePath, true));
+            output.append(friendName + "\n");
+            output.close();
+        }
+        catch (IOException e)
+        {
+            System.out.println(e);
+        }
+    }
+
+    //False: friend not found in the list
+    //True: friend already added to list
+    public static boolean checkFriendList(String friendName)
+    {
+        File friendFile = new File(filePath);
+        if(!friendFile.exists()) {
+             try
+             {
+                friendFile.createNewFile();
+             }
+             catch (IOException e)
+             {
+               System.out.println(e);
+             }
+        }
+        try
+        {
+            FileOutputStream oFile = new FileOutputStream(filePath, true);
+
+
+                Scanner scanner = new Scanner(friendFile);
+                while(scanner.hasNextLine())
+                {
+                      String testLine = scanner.nextLine();
+                      if (testLine.equals(friendName))
+                      {
+                          //matching name found, warn user
+                          return true;
+                      }
+                }
+
+        }
+        catch (FileNotFoundException e)
+        {
+            System.out.println(e);
+        }
+        //no matching name found, add friend
+        return false;
+    }
+
+	public static String userInputLoop(BufferedReader  userInput){
+ 		try
+ 		{
+ 		   	System.out.print("Paper Planes: ");
+ 			String line = userInput.readLine();
+			return line;
+		}catch(Exception e){
+			System.out.println("Something went wrong :(");
+		}return "";
+	}
+
+	public static void processUserInput(String lineIn){
+		System.out.println(lineIn);
+	}
+
+	public static void serverInputLoop(DataOutputStream output, BufferedReader input){
+
 	}
 
 	public static void main(String[] args)
 	{
-
-        Socket clientSocket;
-        DataOutputStream output = null;
-        BufferedReader input;
 
 		String serverIPAdress;
 		int portNumber;
 
 
 		BufferedReader  userInput = new BufferedReader(new InputStreamReader(System.in));
+		ExecutorService threadPool = Executors.newFixedThreadPool(2);
 
         if(args.length != 2)
         {
@@ -171,55 +276,58 @@ public class Client
         serverIPAdress = args[0];
         portNumber = Integer.parseInt(args[1]);
 
-		String line = "";
 		System.out.println("Welcome to paper airplanes!");
 
-	  try
-	  {
-		  //userdata
-		  clientSocket = new Socket(serverIPAdress, portNumber); //for now we are only connecting to one computer
-		  output = new DataOutputStream(clientSocket.getOutputStream());
-		  input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-		  }
-		  catch (IOException e)
-		  {
-		      System.out.println(e);
-			  System.exit(0);
-		  }
-
-
-
-    	//Initialize the user
-       User user = new User();
-
-	   //Send user info to server
-	   String export = "/userdata "+ user.export();
-	   try{
-	   		output.writeBytes(export);
-		}
-		catch(Exception e){
-			System.out.println("Can't write");
-		}
-
-	   while (!line.equals("/quit"))
+		try
 		{
-            try
-			{
-		   		System.out.print("Paper Planes: ");
-				line = userInput.readLine();
-				System.out.println(line);
-				if (processUserInput(line));
-					{
-
-					}
-
-			}
-			catch (IOException ioe)
-			{
-				System.out.println("Invalid Command!");
-			}
-
+			clientSocket = new Socket(serverIPAdress, portNumber); //for now we are only connecting to one computer
+			output = new DataOutputStream(clientSocket.getOutputStream());
+			input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+		}catch (IOException e)
+		{
+			System.out.println(e);
 		}
+
+		//Initialize the user
+		User user = new User();
+
+		//Callable objects
+		Callable<String> userInputTask = () -> {
+				return userInputLoop(userInput);
+		};
+
+		//Future objects
+		Future<String> userInputFuture;
+		Future serverInputFuture;
+
+		String lastLine = "";
+
+		while(!lastLine.equals("/quit")){
+			userInputFuture = threadPool.submit(userInputTask);
+
+			serverInputFuture = threadPool.submit(() -> {
+				try{
+					serverInputLoop(output, input); //This one in 2nd thread
+				}catch(Exception e){
+					System.out.println("Something went wrong :(");
+				}
+			});
+
+			//while(!userInputFuture.isDone() && !serverInputFuture.isDone());
+			while(!userInputFuture.isDone());
+
+			if(userInputFuture.isDone()){
+				//process user input
+				try{
+					lastLine = userInputFuture.get();
+				}catch(Exception e){
+					System.out.println("Task interuppted!");
+				}
+				processUserInput(lastLine);
+			}if(serverInputFuture.isDone()){
+				//process server input
+			}
+		}
+		threadPool.shutdownNow();
 	}
 }
