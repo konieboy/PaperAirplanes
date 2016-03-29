@@ -37,28 +37,28 @@ public class Client
 	 static Socket clientSocket = null;
 	 static DataOutputStream output = null;
 	 static BufferedReader input = null;
-	
-	
+
+
     static final String filePath = "friendList.txt";
 
     public static Boolean isRegisteredUser(String friendName)
     {
     	try
 		  {
-			  
-			  BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in)); 
-			
+
+			  BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+
 			  String serverInput;
 			 // Send to the server
-			  output.writeBytes("regestered user:" + friendName); 
-			
-			
+			  output.writeBytes("regestered user:" + friendName);
+
+
 			  // Getting response from the server
 			  serverInput = input.readLine();
 			  System.out.println("Server: " + serverInput);
-			 			
+
 			  // Close the socket
-			  //clientSocket.close();  
+			  //clientSocket.close();
 			  if (serverInput.contains("false"))
 			  {
 				  return false;
@@ -75,7 +75,7 @@ public class Client
 		  }
     	return null;
     }
-    
+
     public static void removeFriend(String friendName)
     {
       //check if is actually already added
@@ -159,7 +159,7 @@ public class Client
             System.out.println(e);
         }
         System.out.print("\n");
-       
+
     }
 
     public static void addFriend(String friendName)
@@ -172,7 +172,7 @@ public class Client
         else if (isRegisteredUser(friendName) == false)
         {
             System.out.println( friendName + " is not a registered user. " + friendName + " was not added to your friend list!");
-        }   	
+        }
         else
         {
             //add user to the friend list
@@ -214,7 +214,7 @@ public class Client
         try
         {
             FileOutputStream oFile = new FileOutputStream(filePath, true);
- 
+
 
                 Scanner scanner = new Scanner(friendFile);
                 while(scanner.hasNextLine())
@@ -237,14 +237,14 @@ public class Client
     }
 
 	public static void main(String[] args)
-	{   
-		
+	{
+
 		String serverIPAdress;
 		int portNumber;
 
-       
+
 		BufferedReader  userInput = new BufferedReader(new InputStreamReader(System.in));
-		
+
         if(args.length != 2)
         {
             System.out.println("Invalid Arguments");
@@ -254,7 +254,7 @@ public class Client
 
         serverIPAdress = args[0];
         portNumber = Integer.parseInt(args[1]);
-        
+
 		String line = "";
 		System.out.println("Welcome to paper airplanes!");
 
@@ -262,18 +262,23 @@ public class Client
 	  {
 		  clientSocket = new Socket(serverIPAdress, portNumber); //for now we are only connecting to one computer
 		  output = new DataOutputStream(clientSocket.getOutputStream());
-		  input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));	  
-		           
+		  input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
 		  }
 		  catch (IOException e)
 		  {
 		      System.out.println(e);
 		  }
-	   
-		
+
+
 
           //Initialize the user
        User user = new User();
+
+	   //Send user info to server
+	   String export = user.export();
+
+	   output.writeBytes(export);
 
 	   while (!line.equals("/quit"))
 		{
@@ -288,7 +293,7 @@ public class Client
 				{
 					//Split line into an array for easy parsing
 					//gets rid of spaces and special chars
-					String[] command = line.split("\\s+");
+					String[] command = line.split("\\s+");	//forward slash
 					for (int i = 0; i < command.length; i++)
 					{
 						command[i] = command[i].replaceAll("[^\\w]", "");
@@ -300,16 +305,16 @@ public class Client
 			/*connect*/
 			if((command[0].toLowerCase()).equals("connect"))
 			{
-			 
-			  
-			  String serverInput = command[1]; 
+
+
+			  String serverInput = command[1];
 			  //check to see the user to connect to is on the server
 			  isRegisteredUser(serverInput);
 			}
-		           
-	
 
-			  
+
+
+
 		    /*quit*/
 		      if((command[0].toLowerCase()).equals("quit") || (command[0].toLowerCase()).equals("exit") || (command[0].toLowerCase()).equals("q") )
 				{
@@ -317,7 +322,7 @@ public class Client
 					System.out.println("Quiting Paper Planes...");
 					System.exit(0);
 				}
-	
+
 				/*add a friend*/
 				if((command[0].toLowerCase()).equals("addfriend") || (command[0].toLowerCase()).equals("add") || (command[0].toLowerCase()).equals("af") )
 				{
