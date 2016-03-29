@@ -22,6 +22,176 @@ public class Server
   private ArrayList<Integer> connectedClientID;
   private ArrayList<RoomServer> currentRooms;
   private static int BUFFERSIZE = 256;
+  static final String filePath = "friendList.txt";
+
+  //Return false: not in list of registeredUsers
+  //Return true: in list of registeredUsers
+
+
+  public static void removeFriend(String friendName)
+  {
+    //check if is actually already added
+    if (!checkFriendList(friendName))
+    {
+      System.out.println( friendName + " has not been added as a friend. Add friends before you remove them!");
+    }
+
+    else
+    {
+        //remove user from the friend list
+        System.out.println( friendName + " has been found in your friend list...");
+        removeUser(friendName);
+        System.out.println( friendName +  " has successfully removed from your friend list..." );
+        printFriendList();
+    }
+  }
+
+  public static void removeUser(String friendName)
+  {
+      try
+      {
+          File friendList = new File(filePath);
+          File tempFriendList = new File("temporaryFriendList.txt");
+          BufferedReader reader = new BufferedReader(new FileReader(friendList));
+          BufferedWriter writer = new BufferedWriter(new FileWriter(tempFriendList));
+
+          String lineToRemove = friendName;
+          String currentLine;
+
+          while((currentLine = reader.readLine()) != null)
+          {
+              // trim newline when comparing with lineToRemove
+              String trimmedLine = currentLine.trim();
+              if(trimmedLine.equals(lineToRemove)) continue;
+              writer.write(currentLine + System.getProperty("line.separator"));
+          }
+          writer.close();
+          reader.close();
+          tempFriendList.renameTo(friendList);
+      }
+      catch (IOException e)
+      {
+          System.out.println(e);
+      }
+  }
+
+  public static void addFriend(String friendName)
+  {
+      //check if user is already in the friend list
+      if (checkFriendList(friendName))
+      {
+          System.out.println(friendName + " is already in your friend list. " + friendName + " was not added to your friend list!");
+      }
+
+      else if (!searchForName(friendName))
+      {
+          System.out.println(friendName + " is not a registered user. " + friendName + " was not added to your friend list!");
+      }
+      else
+      {
+          //add user to the friend list
+          addUser(friendName);
+          printFriendList();
+      }
+  }
+
+  //add user to the friend list
+  public static void addUser(String friendName)
+  {
+      try
+      {
+          Writer output;
+          output = new BufferedWriter(new FileWriter(filePath, true));
+          output.append(friendName + "\n");
+          output.close();
+      }
+      catch (IOException e)
+      {
+          System.out.println(e);
+      }
+  }
+
+  //False: friend not found in the list
+  //True: friend already added to list
+  public static boolean checkFriendList(String friendName)
+  {
+      File friendFile = new File(filePath);
+      if(!friendFile.exists()) {
+           try
+           {
+              friendFile.createNewFile();
+           }
+           catch (IOException e)
+           {
+             System.out.println(e);
+           }
+      }
+      try
+      {
+          FileOutputStream oFile = new FileOutputStream(filePath, true);
+
+
+              Scanner scanner = new Scanner(friendFile);
+              while(scanner.hasNextLine())
+              {
+                    String testLine = scanner.nextLine();
+                    if (testLine.equals(friendName))
+                    {
+                        //matching name found, warn user
+                        return true;
+                    }
+              }
+
+      }
+      catch (FileNotFoundException e)
+      {
+          System.out.println(e);
+      }
+      //no matching name found, add friend
+      return false;
+  }
+
+
+
+
+
+  public static void printFriendList()
+  {
+      File friendFile = new File(filePath);
+      if(!friendFile.exists())
+      {
+          try
+          {
+              friendFile.createNewFile();
+          }
+              catch (IOException e)
+          {
+              System.out.println(e);
+          }
+      }
+
+      try
+      {
+          FileOutputStream oFile = new FileOutputStream(filePath, true);
+          Scanner scanner = new Scanner(friendFile);
+          System.out.println("\n----- Friend List -----");
+          int  friendCount = 0;
+          while(scanner.hasNextLine())
+          {
+            friendCount++;
+            String testLine = scanner.nextLine();
+            System.out.println(friendCount + ") " + testLine);
+          }
+          oFile.close();
+          scanner.close();
+      }
+      catch (IOException e)
+      {
+          System.out.println(e);
+      }
+      System.out.print("\n");
+
+  }
 
   public static void main(String args[])
   {
@@ -92,7 +262,7 @@ public class Server
 
                     // Register the new connection for read operation
                     cchannel.register(selector, SelectionKey.OP_READ);
-                   
+
                 }
                else{
                     SocketChannel cchannel = (SocketChannel)key.channel();
@@ -116,86 +286,53 @@ public class Server
                         cBuffer.flip();
                         line = cBuffer.toString();
                         System.out.print("TCP Client: " + line);
-                       
-                        //////**********************************
-                        
-                        //detect that the client wants to add a new user
-                        if(line.contains("regestered user:"))
-                        {                      	                            
-                        	line = line.replace("regestered user:","");
-                            System.out.println("Checking to make sure that " + line + " is a regestered user...");
-                            if(searchForName(line))
-                            {
-                                cchannel.write(encoder.encode(CharBuffer.wrap("true\n")));     
 
+                        //////**********************************
+                        //respond to client input
+
+                        //detect that the client wants to add a new user
+                        if(line.contains("/add "))
+                        {
+                        	line = line.replace("/add ","");
+                            System.out.println("Checking to make sure that " + line + " is a registered user...");
+
+                            //check that the user is registered
+                            /*if(searchForName(line))
+                            {
+                                cchannel.write(encoder.encode(CharBuffer.wrap("true\n")));
                                 System.out.println("User was found");
                             }
                             else
                             {
-                                System.out.println("User is not a regestered user!");
-                                cchannel.write(encoder.encode(CharBuffer.wrap("false\n")));       
+                                System.out.println("User is not a registered user!");
+                                cchannel.write(encoder.encode(CharBuffer.wrap("false\n")));
+                            } */
 
-                            }                          	                                  
+                            //add user to the friend list
+                            addFriend(line);
+
                         }
-                        
-                        if(line.contains("help")){
-                           cchannel.write(encoder.encode(CharBuffer.wrap("Commands:\nterminate -Terminates the connection\nlist -Lists the files in the current dir\nget <filename> -Retrieves file from the server\nend\n")));
-                        }else if(line.equals("list\n")){                   //Executes ls, then reads the temp file and prints the output to the server
-                           try{
-                              Runtime.getRuntime().exec(new String[]{"bash","-c","ls > /tmp/tmp.txt"});
-                           }catch(Exception e){
-                              System.out.println("Error executing ls");
-                              cchannel.write(encoder.encode(CharBuffer.wrap("Error executing ls\nend\n")));
-                           }
-                           Thread.sleep(100);
-                           //Reading and sending file
-                           try{
-                              FileReader fr = new FileReader("/tmp/tmp.txt");
-                              BufferedReader br = new BufferedReader(fr);
-                              String bLine = br.readLine();
-                              while(bLine != null){
-                                 cchannel.write(encoder.encode(CharBuffer.wrap(bLine + '\n')));
-                                 bLine = br.readLine();
-                              }
-                              br.close();
-                               cchannel.write(encoder.encode(CharBuffer.wrap("end\n")));
-                           }catch(IOException e){
-                              System.out.println("Error while reading the list");
-                              cchannel.write(encoder.encode(CharBuffer.wrap("Error while reading the list\nend\n")));
-                           }
-                        }else if (line.equals("terminate\n")){
-                            terminated = true;
-                            //Reading the file then sending it
-                        }else if (line.contains("get ")){
-                           //Get filename from client
-                           String filename = (line.split(" "))[1];
-                           try{
-                              infile = new FileInputStream(filename.trim());
-                           }catch(Exception e){
-                              cchannel.write(encoder.encode(CharBuffer.wrap("Error in opening file " + filename)));
-                              cchannel.write(encoder.encode(CharBuffer.wrap("end\n")));
-                           }
-                           try{
-                              byte[] msg = new byte[infile.available()];
-                              int read_bytes = infile.read(msg);
-                              //Send message size to client
-                              cchannel.write(encoder.encode(CharBuffer.wrap(Integer.toString(read_bytes))));
-                              cchannel.write(encoder.encode(CharBuffer.wrap("end\n")));
 
-                              //sent message data to client
-                              cchannel.write(encoder.encode(CharBuffer.wrap(Arrays.toString(msg))));
-                              cchannel.write(encoder.encode(CharBuffer.wrap("\n")));
-
-                           }catch(Exception e){
-                              System.out.println("File error");
-                           }
-
-                           
-                           
+                        else if (line.contains("/printfriends" ))
+                        {
+                            line = line.replace("/printfriends ", "");
+                            printFriendList();
                         }
-                        
-                        
-                        else{
+                        else if(line.contains("/remove "))
+                        {
+                            line = line.replace("/remove ", "");
+                            removeFriend(line);
+                        }
+
+                        else if(line.contains("/userdata"))
+                        {
+                              String[] up = line.split(" ");
+                              checkUser(up[1], up[2]);
+                        }
+
+
+                        else
+                        {
                            //Not a command
                            //cchannel.write(encoder.encode(CharBuffer.wrap("Command not recognized: " + line + "end\n")));
                         }
@@ -238,11 +375,10 @@ public class Server
       return null;
   }
 
-  private static Boolean searchForName(String name) throws FileNotFoundException {
-	  
+  private static Boolean searchForName(String name) {
+
 	  try
 	  {
-	  
 		  File file = new File("registeredUsers.txt");
 		  Scanner input = new Scanner(file);
 		  while(input.hasNextLine()) {
@@ -252,14 +388,42 @@ public class Server
 				  return true;
 			  }
 		   }
-		  
-	  }  
+
+	  }
 	  catch (IOException e)
 	    {
 	        System.out.println(e);
 	    }
 	  return false;
-}
+  }
 
+  private static boolean checkUser(String username, String password){
+      try{
+          BufferedReader br = new BufferedReader(new FileReader(username+".txt"));
+          br.readLine();
+          if(password.equals(br.readLine())){
+              System.out.println("Login Successful");
+              return true;
+          }
+          else{
+              return false;
+          }
+      }catch(FileNotFoundException fe){
+          try{
+              Writer wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(username+".txt"), "UTF-8"));
+              wr.write(username);
+              wr.write(password);
+              System.out.println("Profile Created");
+          }catch(IOException ie){
+              return false;
+          }
+      }catch(IOException ioe){
+          return false;
+      }
+      return false;
+
+
+
+  }
 
 }

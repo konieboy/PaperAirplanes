@@ -32,18 +32,13 @@ public class User{
       passwordHash = "";
       rsaPubKey = "";
       rsaPrivateKey = "";
-      friendsList = null;
+      friendsList = new ArrayList<String>();
 
       initUser();
   }
 
   public String export(){
-      String info = ("" + userID + "\n" + username + "\n" + password + "\n" + passwordHash + "\n" + rsaPubKey + "\n" + rsaPrivateKey + "\n");
-
-      for(int i = 0; i < friendsList.length; i++)
-      {
-          info = info + friendsList[i] + "\n";
-      }
+      String info = (username + " " + password);
 
       return info;
   }
@@ -110,9 +105,9 @@ public class User{
      String fileName = (username + ".txt");
 
      System.out.print("Enter your password: ");
-     String checkPass = userIn.nextLine();
+     password = userIn.nextLine();
       //Open file, if not there, create a new user
-      //If file exists, read file and set variables
+      /*If file exists, read file and set variables
       try{
          BufferedReader br = new BufferedReader(new FileReader(fileName));
 
@@ -124,7 +119,7 @@ public class User{
          "Pubkey"
          "PrivKey"
 
-         */
+
          username = br.readLine();
          password = br.readLine();
          passwordHash = br.readLine();
@@ -156,5 +151,6 @@ public class User{
          }
 
       }
+      */
   }
 }
