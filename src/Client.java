@@ -10,6 +10,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 /**
  *  Client class facilitates communication with the server and
@@ -236,7 +237,7 @@ public class Client
         return false;
     }
 
-	public static void userInput(String line){
+	public static void userInputLoop(String line, BufferedReader  userInput){
 		while (!line.equals("/quit"))
  		{
  			try
@@ -327,6 +328,14 @@ public class Client
  		}
 	}
 
+	public static void processUserInput(String lineIn){
+
+	}
+
+	public static void serverInputLoop(DataOutputStream output, BufferedReader input){
+
+	}
+
 	public static void main(String[] args)
 	{
 
@@ -335,6 +344,7 @@ public class Client
 
 
 		BufferedReader  userInput = new BufferedReader(new InputStreamReader(System.in));
+		ExecutorService threadPool = Executors.newFixedThreadPool(2);
 
         if(args.length != 2)
         {
@@ -349,19 +359,51 @@ public class Client
 		String line = "";
 		System.out.println("Welcome to paper airplanes!");
 
-	  try
-	  {
-		  clientSocket = new Socket(serverIPAdress, portNumber); //for now we are only connecting to one computer
-		  output = new DataOutputStream(clientSocket.getOutputStream());
-		  input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-	  }catch (IOException e)
-	  {
-		  System.out.println(e);
-	  }
+		try
+		{
+			clientSocket = new Socket(serverIPAdress, portNumber); //for now we are only connecting to one computer
+			output = new DataOutputStream(clientSocket.getOutputStream());
+			input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+		}catch (IOException e)
+		{
+			System.out.println(e);
+		}
 
+		//Initialize the user
+		User user = new User();
 
+		//Future objects
+		Future userInputFuture;
+		Future serverInputFuture;
 
-	  //Initialize the user
-	  User user = new User();
+		String lastLine = "";
+
+		while(lastLine != "/quit"){
+			userInputFuture = threadPool.submit(() -> {
+				try{
+					userInputLoop(line, userInput); //This in 1st thread
+				} catch(Exception e){
+					System.out.println("Something went wrong :(");
+				}
+			});
+
+			serverInputFuture = threadPool.submit(() -> {
+				try{
+					serverInputLoop(output, input); //This one in 2nd thread
+				}catch(Exception e){
+					System.out.println("Something went wrong :(");
+				}
+			});
+
+			while(!userInputFuture.isDone() && !serverInputFuture.isDone());
+
+			if(userInputFuture.isDone()){
+				//process user input
+				//lastLine = userInputFuture.get();
+				//processUserInput(lastLine);
+			}if(serverInputFuture.isDone()){
+				//process server input
+			}
+		}
 	}
 }
