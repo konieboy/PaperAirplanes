@@ -28,12 +28,20 @@ public class Server
   //Return true: in list of registeredUsers
 
 
-  public static void removeFriend(String friendName)
+  public static void removeFriend(String friendName, SocketChannel cchannel, CharsetEncoder encoder)
   {
     //check if is actually already added
     if (!checkFriendList(friendName))
     {
       System.out.println( friendName + " has not been added as a friend. Add friends before you remove them!");
+      try
+      {
+          sendMessage( (friendName + " has not been added as a friend. Add friends before you remove them!") ,cchannel,encoder);
+      }
+      catch(IOException e)
+      {
+          System.out.println("Could not send message #1002");
+      }
     }
 
     else
@@ -42,6 +50,15 @@ public class Server
         System.out.println( friendName + " has been found in your friend list...");
         removeUser(friendName);
         System.out.println( friendName +  " has successfully removed from your friend list..." );
+        try
+        {
+            sendMessage( (friendName + " has been found in your friend list...\n" + friendName +  " has successfully removed from your friend list...\n" ) ,cchannel,encoder);
+        }
+        catch(IOException e)
+        {
+            System.out.println("Could not send message #1003");
+        }
+
     }
   }
 
@@ -74,23 +91,42 @@ public class Server
       }
   }
 
-  public static void addFriend(String friendName)
+  public static void addFriend(String friendName, SocketChannel cchannel, CharsetEncoder encoder)
   {
       //check if user is already in the friend list
-      if (checkFriendList(friendName))
-      {
-          System.out.println(friendName + " is already in your friend list. " + friendName + " was not added to your friend list!");
-      }
+    if (checkFriendList(friendName))
+    {
+        System.out.println(friendName + " is already in your friend list. " + friendName + " was not added to your friend list!");
+        //send message to Client
+        try
+        {
+            sendMessage( (friendName + " is already in your friend list. " + friendName + " was not added to your friend list!") ,cchannel,encoder);
+        }
+        catch(IOException e)
+        {
+            System.out.println("Could not send message #1000");
+        }
+    }
 
-      else if (!searchForName(friendName))
-      {
-          System.out.println(friendName + " is not a registered user. " + friendName + " was not added to your friend list!");
-      }
-      else
-      {
-          //add user to the friend list
-          addUser(friendName);
-      }
+    else if (!searchForName(friendName))
+    {
+        System.out.println(friendName + " is not a registered user. " + friendName + " was not added to your friend list!");
+
+        //send message to Client
+        try
+        {
+            sendMessage( (friendName + " is not a registered user. " + friendName + " was not added to your friend list!") ,cchannel,encoder);
+        }
+        catch(IOException e)
+        {
+            System.out.println("Could not send message #1001");
+        }
+    }
+    else
+    {
+      //add user to the friend list
+      addUser(friendName);
+    }
   }
 
   //add user to the friend list
@@ -173,7 +209,7 @@ public class Server
       {
           FileOutputStream oFile = new FileOutputStream(filePath, true);
           Scanner scanner = new Scanner(friendFile);
-          friendList = (friendList + "\n----- Friend List -----\n");
+          friendList = (friendList + "\n\n----- Friend List -----");
           int  friendCount = 0;
           while(scanner.hasNextLine())
           {
@@ -306,8 +342,7 @@ public class Server
                             System.out.println("Checking to make sure that " + line + " is a registered user...");
 
                             //add user to the friend list
-                            //cchannel.write(encoder.encode(CharBuffer.wrap("swiggity swooty/n")));
-                            addFriend(line);
+                            addFriend(line, cchannel, encoder);
                             printFriendList(cchannel, encoder);
 
                         }
@@ -322,7 +357,7 @@ public class Server
                         else if(line.contains("/remove "))
                         {
                             line = line.replace("/remove ", "");
-                            removeFriend(line);
+                            removeFriend(line,cchannel, encoder);
                             printFriendList(cchannel, encoder);
 
                         }
