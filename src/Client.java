@@ -268,10 +268,10 @@ public class Client
 		String tmpLine = "";
 		try{
 		 	line = line + input.readLine();
-			//tmpLine = input.readLine();
-			//while(!tmpLine.equals("")){
-			//	line = line + tmpLine;
-			//}
+			while(input.ready()){
+				tmpLine = input.readLine();
+				line = line + "\n" + tmpLine;
+			}//line = line + "\n";
 		}catch(Exception e){
 			System.out.println("Something went wrong :(");
 		}
@@ -331,28 +331,21 @@ public class Client
 		Future<String> userInputFuture = threadPool.submit(userInputTask);
 
 		String lastLine = "";
+		Boolean doneProcessingServerInput = true;
 
 		while(!lastLine.equals("/quit")){
-			if(serverInputFuture.isDone()){
+			if(serverInputFuture.isDone() && doneProcessingServerInput){
 				serverInputFuture = threadPool.submit(serverInputTask);
 			}
-
-			if(userInputFuture.isDone()){
+			if(userInputFuture.isDone() && doneProcessingServerInput){
 				userInputFuture = threadPool.submit(userInputTask);
 			}
 
+
 			while(!userInputFuture.isDone() && !serverInputFuture.isDone());
 
-			if(serverInputFuture.isDone()){	//Process input from server if it gets something
-				//process server input
-				String serverLineIn = "";
-				try{
-					serverLineIn = serverInputFuture.get();
-				}catch(Exception e){
-					System.out.println("Task interrupted!");
-				}
-				processServerInput(serverLineIn);
-			}if(userInputFuture.isDone()){		//Process input from server if it gets something
+			//If message loss occurs, add a delay here
+			if(userInputFuture.isDone() && !userInputFuture.isCancelled()){		//Process input from server if it gets something
 				//process user input
 				try{
 					lastLine = userInputFuture.get();
@@ -360,6 +353,19 @@ public class Client
 					System.out.println("Task interrupted!");
 				}
 				processUserInput(lastLine);
+			}if(serverInputFuture.isDone()){	//Process input from server if it gets something
+				//process server input
+				doneProcessingServerInput = false;
+				userInputFuture.cancel(true);
+				String serverLineIn = "";
+				try{
+					serverLineIn = serverInputFuture.get();
+				}catch(Exception e){
+					System.out.println("Task interrupted!");
+				}
+				processServerInput(serverLineIn);
+				System.out.println("Press 'ENTER' to continue.");
+				doneProcessingServerInput = true;
 			}
 		}
 		threadPool.shutdownNow();
