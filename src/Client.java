@@ -335,7 +335,7 @@ public class Client
 				try{
 					lastLine = userInputFuture.get();
 				}catch(Exception e){
-					System.out.println("Task interuppted!");
+					System.out.println("Task interrupted!");
 				}
 				processUserInput(lastLine);
 			}if(serverInputFuture.isDone()){	//Process input from server if it gets something
@@ -344,7 +344,7 @@ public class Client
 				try{
 					serverLineIn = serverInputFuture.get();
 				}catch(Exception e){
-					System.out.println("Task interuppted!");
+					System.out.println("Task interrupted!");
 				}
 				processServerInput(serverLineIn);
 			}
