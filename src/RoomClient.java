@@ -16,8 +16,12 @@ public class RoomClient{
   private static int roomServerID;
 
   public static void main(String [] args){
-      roomClientID = Integer.parseInt(args[0]);
-      roomServerID = Integer.parseInt(args[1]);
+      try{
+          roomClientID = Integer.parseInt(args[0]);
+          roomServerID = Integer.parseInt(args[1]);
+      }catch(Exception e){
+          System.exit(0);
+      }
       while(true);
   }
 
