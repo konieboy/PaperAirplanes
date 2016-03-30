@@ -42,7 +42,6 @@ public class Server
         System.out.println( friendName + " has been found in your friend list...");
         removeUser(friendName);
         System.out.println( friendName +  " has successfully removed from your friend list..." );
-        printFriendList();
     }
   }
 
@@ -91,7 +90,6 @@ public class Server
       {
           //add user to the friend list
           addUser(friendName);
-          printFriendList();
       }
   }
 
@@ -155,8 +153,9 @@ public class Server
 
 
 
-  public static void printFriendList()
+  public static void printFriendList(SocketChannel cchannel,CharsetEncoder encoder)
   {
+      String friendList = "";
       File friendFile = new File(filePath);
       if(!friendFile.exists())
       {
@@ -174,22 +173,25 @@ public class Server
       {
           FileOutputStream oFile = new FileOutputStream(filePath, true);
           Scanner scanner = new Scanner(friendFile);
-          System.out.println("\n----- Friend List -----");
+          friendList = (friendList + "\n----- Friend List -----\n");
           int  friendCount = 0;
           while(scanner.hasNextLine())
           {
             friendCount++;
             String testLine = scanner.nextLine();
             System.out.println(friendCount + ") " + testLine);
+            friendList = (friendList + "\n" + testLine);
           }
           oFile.close();
           scanner.close();
+          sendMessage((friendList + "\n"),cchannel,encoder);
       }
       catch (IOException e)
       {
           System.out.println(e);
       }
       System.out.print("\n");
+
 
   }
 
@@ -213,6 +215,11 @@ public class Server
     CharBuffer cBuffer = null;
     int bytesSent, bytesRecv;     // number of bytes sent or received
     FileInputStream infile = null;
+
+    DataOutputStream clientWriter;
+
+
+
 
     try{
        //trying to create new socket, default port for Project is 3265.
@@ -293,35 +300,31 @@ public class Server
                         //detect that the client wants to add a new user
                         if(line.contains("/add "))
                         {
+
+
                         	line = line.replace("/add ","");
                             System.out.println("Checking to make sure that " + line + " is a registered user...");
 
-                            //check that the user is registered
-                            /*if(searchForName(line))
-                            {
-                                cchannel.write(encoder.encode(CharBuffer.wrap("true\n")));
-                                System.out.println("User was found");
-                            }
-                            else
-                            {
-                                System.out.println("User is not a registered user!");
-                                cchannel.write(encoder.encode(CharBuffer.wrap("false\n")));
-                            } */
-
                             //add user to the friend list
+                            //cchannel.write(encoder.encode(CharBuffer.wrap("swiggity swooty/n")));
                             addFriend(line);
+                            printFriendList(cchannel, encoder);
 
                         }
 
                         else if (line.contains("/printfriends" ))
                         {
                             line = line.replace("/printfriends ", "");
-                            printFriendList();
+                            printFriendList(cchannel, encoder);
+
+
                         }
                         else if(line.contains("/remove "))
                         {
                             line = line.replace("/remove ", "");
                             removeFriend(line);
+                            printFriendList(cchannel, encoder);
+
                         }
 
                         else if(line.contains("/userdata"))
@@ -336,6 +339,7 @@ public class Server
                            //Not a command
                            //cchannel.write(encoder.encode(CharBuffer.wrap("Command not recognized: " + line + "end\n")));
                         }
+
 
                      }
                 }
@@ -355,9 +359,11 @@ public class Server
                 ((SocketChannel)key.channel()).socket().close();
         }
     }
+
     catch (Exception e) {
         System.out.println(e);
      }
+
   }
 
   public RoomServer startRoomServer()
@@ -426,4 +432,18 @@ public class Server
 
   }
 
+  // sendMessage - sends string to client through TCP socketchannel
+    private static int sendMessage(String msg, SocketChannel cchannel, CharsetEncoder encoder) throws IOException
+    {
+        int outLen = msg.length();
+        CharBuffer newcb = CharBuffer.allocate(outLen);		// allocate required space
+        ByteBuffer outBuf = ByteBuffer.allocate(outLen);
+
+        newcb.put(msg);
+        newcb.rewind();
+        encoder.encode(newcb, outBuf, false);
+        outBuf.flip();
+        int bytesSent = cchannel.write(outBuf);		// send to client
+        return bytesSent;
+    }
 }
