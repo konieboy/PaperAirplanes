@@ -251,7 +251,7 @@ public class Client
 	public static void processUserInput(String lineIn){
 		System.out.println(lineIn);
 		try{
-			output.writeChars(lineIn);
+			output.writeBytes(lineIn);
 		}catch(IOException e){
 			System.out.println("IO exception");
 		}
@@ -327,32 +327,23 @@ public class Client
 		};
 
 		//Future objects
-		Future<String> userInputFuture = threadPool.submit(userInputTask);
 		Future<String> serverInputFuture = threadPool.submit(serverInputTask);
+		Future<String> userInputFuture = threadPool.submit(userInputTask);
 
 		String lastLine = "";
 
 		while(!lastLine.equals("/quit")){
-			if(userInputFuture.isDone()){
-				userInputFuture = threadPool.submit(userInputTask);
-			}
-
 			if(serverInputFuture.isDone()){
 				serverInputFuture = threadPool.submit(serverInputTask);
 			}
 
-			while(!userInputFuture.isDone() && !serverInputFuture.isDone());
-			//while(!userInputFuture.isDone());
+			if(userInputFuture.isDone()){
+				userInputFuture = threadPool.submit(userInputTask);
+			}
 
-			if(userInputFuture.isDone()){		//Process input from server if it gets something
-				//process user input
-				try{
-					lastLine = userInputFuture.get();
-				}catch(Exception e){
-					System.out.println("Task interrupted!");
-				}
-				processUserInput(lastLine);
-			}if(serverInputFuture.isDone()){	//Process input from server if it gets something
+			while(!userInputFuture.isDone() && !serverInputFuture.isDone());
+
+			if(serverInputFuture.isDone()){	//Process input from server if it gets something
 				//process server input
 				String serverLineIn = "";
 				try{
@@ -361,6 +352,14 @@ public class Client
 					System.out.println("Task interrupted!");
 				}
 				processServerInput(serverLineIn);
+			}if(userInputFuture.isDone()){		//Process input from server if it gets something
+				//process user input
+				try{
+					lastLine = userInputFuture.get();
+				}catch(Exception e){
+					System.out.println("Task interrupted!");
+				}
+				processUserInput(lastLine);
 			}
 		}
 		threadPool.shutdownNow();
