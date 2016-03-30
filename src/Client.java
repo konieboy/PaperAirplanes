@@ -252,8 +252,24 @@ public class Client
 		System.out.println(lineIn);
 	}
 
-	public static void serverInputLoop(DataOutputStream output, BufferedReader input){
+	public static void processServerInput(String lineIn){
+		if(!lineIn.equals("")){
+			System.out.println(lineIn);
+		}
+	}
 
+	public static String serverInputLoop(BufferedReader input){
+		String line = "";
+		try{
+		 	line = input.readLine();
+		}catch(Exception e){
+			System.out.println("Something went wrong :(");
+		}
+		return line;
+	}
+
+	public static void startRoomClient(int roomServerID){
+		//RoomClient roomClient = new RoomClient(roomServerID);
 	}
 
 	public static void main(String[] args)
@@ -296,27 +312,25 @@ public class Client
 				return userInputLoop(userInput);
 		};
 
+		Callable<String> serverInputTask = () -> {
+				return serverInputLoop(input);
+		};
+
 		//Future objects
 		Future<String> userInputFuture;
-		Future serverInputFuture;
+		Future<String> serverInputFuture;
 
 		String lastLine = "";
 
 		while(!lastLine.equals("/quit")){
 			userInputFuture = threadPool.submit(userInputTask);
 
-			serverInputFuture = threadPool.submit(() -> {
-				try{
-					serverInputLoop(output, input); //This one in 2nd thread
-				}catch(Exception e){
-					System.out.println("Something went wrong :(");
-				}
-			});
+			serverInputFuture = threadPool.submit(serverInputTask);
 
 			//while(!userInputFuture.isDone() && !serverInputFuture.isDone());
 			while(!userInputFuture.isDone());
 
-			if(userInputFuture.isDone()){
+			if(userInputFuture.isDone()){		//Process input from server if it gets something
 				//process user input
 				try{
 					lastLine = userInputFuture.get();
@@ -324,8 +338,15 @@ public class Client
 					System.out.println("Task interuppted!");
 				}
 				processUserInput(lastLine);
-			}if(serverInputFuture.isDone()){
+			}if(serverInputFuture.isDone()){	//Process input from server if it gets something
 				//process server input
+				String serverLineIn = "";
+				try{
+					serverLineIn = serverInputFuture.get();
+				}catch(Exception e){
+					System.out.println("Task interuppted!");
+				}
+				processServerInput(serverLineIn);
 			}
 		}
 		threadPool.shutdownNow();

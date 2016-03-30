@@ -13,10 +13,15 @@
 public class RoomClient{
 
   private int roomClientID;
+  private int roomServerID;
 
-  public RoomClient()
+  public static void main(String [] args){
+      
+  }
+
+  public RoomClient(int roomServerIDIn)
   {
-
+      roomServerID = roomServerIDIn;
   }
 
   public void sendMessage(String msg)
