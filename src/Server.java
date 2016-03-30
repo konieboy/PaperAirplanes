@@ -292,7 +292,7 @@ public class Server
                         decoder.decode(inBuffer, cBuffer, false);
                         cBuffer.flip();
                         line = cBuffer.toString();
-                        System.out.print("TCP Client: " + line);
+                        System.out.println("TCP Client: " + line);
 
                         //////**********************************
                         //respond to client input

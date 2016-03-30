@@ -250,6 +250,11 @@ public class Client
 
 	public static void processUserInput(String lineIn){
 		System.out.println(lineIn);
+		try{
+			output.writeChars(lineIn);
+		}catch(IOException e){
+			System.out.println("IO exception");
+		}
 	}
 
 	public static void processServerInput(String lineIn){
@@ -260,8 +265,13 @@ public class Client
 
 	public static String serverInputLoop(BufferedReader input){
 		String line = "";
+		String tmpLine = "";
 		try{
-		 	line = input.readLine();
+		 	line = line + input.readLine();
+			//tmpLine = input.readLine();
+			//while(!tmpLine.equals("")){
+			//	line = line + tmpLine;
+			//}
 		}catch(Exception e){
 			System.out.println("Something went wrong :(");
 		}
@@ -317,18 +327,22 @@ public class Client
 		};
 
 		//Future objects
-		Future<String> userInputFuture;
-		Future<String> serverInputFuture;
+		Future<String> userInputFuture = threadPool.submit(userInputTask);
+		Future<String> serverInputFuture = threadPool.submit(serverInputTask);
 
 		String lastLine = "";
 
 		while(!lastLine.equals("/quit")){
-			userInputFuture = threadPool.submit(userInputTask);
+			if(userInputFuture.isDone()){
+				userInputFuture = threadPool.submit(userInputTask);
+			}
 
-			serverInputFuture = threadPool.submit(serverInputTask);
+			if(serverInputFuture.isDone()){
+				serverInputFuture = threadPool.submit(serverInputTask);
+			}
 
-			//while(!userInputFuture.isDone() && !serverInputFuture.isDone());
-			while(!userInputFuture.isDone());
+			while(!userInputFuture.isDone() && !serverInputFuture.isDone());
+			//while(!userInputFuture.isDone());
 
 			if(userInputFuture.isDone()){		//Process input from server if it gets something
 				//process user input
@@ -350,5 +364,6 @@ public class Client
 			}
 		}
 		threadPool.shutdownNow();
+		System.exit(0);
 	}
 }
