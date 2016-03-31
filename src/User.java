@@ -63,6 +63,7 @@ public class User{
 
     public String login()
     {
+
         String info = (username + " " + passwordHash);
         return info;
     }
@@ -86,9 +87,14 @@ public class User{
     }
 
     public String printFriends(){
-        String friends = "";
+        //String friends = "\n*_*_*_*_*Friends List*_*_*_*_*\n";
+
+        String friends = "\n|  ___| __(_) ___ _ __   __| |___ /\n| |_ | '__| |/ _ \\ '_ \\ / _` / __|\n|  _|| |  | |  __/ | | | (_| \\__ \\ \n|_|  |_|  |_|\\___|_| |_|\\__,_|___/ \n";
+
+        int friendNumber = 0;
         for(String s: friendsList){
-            friends = friends+s+"\n";
+            friendNumber++;
+            friends += friendNumber + ") "+s+"\n";
         }
         return friends;
     }
@@ -107,11 +113,26 @@ public class User{
 
     public void initUser()
     {
-        System.out.print("Enter your username: ");
-        Scanner userIn = new Scanner(System.in);
-        username = userIn.nextLine();
-        System.out.print("Enter your password: ");
-        String password = userIn.nextLine();
+        boolean validLogin = false;
+        String password = "";
+        while (validLogin == false)
+        {
+            System.out.print("Enter your username: ");
+            Scanner userIn = new Scanner(System.in);
+            username = userIn.nextLine();
+            System.out.print("Enter your password: ");
+            password = userIn.nextLine();
+
+            if (username.equals("") || password.equals("")){
+                System.out.print("Username and password can not be left empty, please try again!\n");
+            }
+            else if (username.contains(" ") || password.contains(" ")){
+                System.out.print("Username and password can not contain spaces, please try again!\n");
+            }else{
+                validLogin = true;
+            }
+
+         }
         CryptoTools crypto = new CryptoTools();
         passwordHash = crypto.hash(password);
     }

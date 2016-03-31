@@ -45,7 +45,7 @@ public class Client
 	}
 
 	public static void processUserInput(String lineIn){
-		System.out.println(lineIn);
+		//System.out.println(lineIn);
 		try{
 			output.writeBytes(lineIn);
 		}catch(IOException e){
@@ -70,6 +70,12 @@ public class Client
 			}
 		}catch(Exception e){
 			System.out.println("Something went wrong :(");
+		}
+
+		if (line.contains("User login has failed!"))
+		{
+			System.out.println("Something went wrong :(");
+			System.exit(0);
 		}
 		return line;
 	}

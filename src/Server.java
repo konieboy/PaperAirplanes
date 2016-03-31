@@ -18,6 +18,8 @@ import java.util.*;
  */
 public class Server
 {
+
+    private static String errorMessage = "";
     private static ArrayList<User> usersOnline = new ArrayList<User>();
     private static ArrayList<Integer> connectedClientID = new ArrayList<Integer>();
     private static ArrayList<RoomServer> currentRooms = new ArrayList<RoomServer>();
@@ -103,7 +105,7 @@ public class Server
                         cchannel.register(selector, SelectionKey.OP_READ);
 
                     }
-                   else{    //Reading message 
+                   else{    //Reading message
                         SocketChannel cchannel = (SocketChannel)key.channel();
                         if (key.isReadable()){
                             Socket socket = cchannel.socket();
@@ -141,8 +143,20 @@ public class Server
                             //////**********************************
                             //respond to client input
 
+                            if(line.contains("/connect "))
+                            {
+                                line = line.replace("/connect ","");
+                                System.out.println("Connecting to user: "+line);
+
+                                //open up new terminal window with chat
+                                
+                                //send request to the other user
+
+
+
+                            }
                             //detect that the client wants to add a new user to their friendslist
-                            if(line.contains("/add "))
+                            else if(line.contains("/add "))
                             {
                             	line = line.replace("/add ","");
                                 System.out.println("adding "+line);
@@ -150,12 +164,15 @@ public class Server
                                 //add user to the friend list
                                 if(addFriend(line, getUser(cchannel.socket().getPort())))
                                 {
-                                    sendMessage((line+" was added successfully"), cchannel, encoder);
+                                    //friend was added successfully
+                                    sendMessage((line+" was added successfully\n"), cchannel, encoder);
                                 }
                                 else
                                 {
-                                    String out = line+" was not added";
-                                    sendMessage(out, cchannel, encoder);
+                                    //friend was not added successfully
+                                    sendMessage((errorMessage +"\n"), cchannel, encoder);
+                                    errorMessage ="";
+                                    //sendMessage((line+" was not added\n"), cchannel, encoder);
                                 }
                                 //printFriendList(cchannel, encoder);
 
@@ -168,12 +185,14 @@ public class Server
                                 //add user to the friend list
                                 if(removeFriend(line, getUser(cchannel.socket().getPort())))
                                 {
-                                    sendMessage((line+" was removed successfully"), cchannel, encoder);
+                                    //friend was removed successfully
+                                    sendMessage((line + " has been successfully removed from your friends list.\n"), cchannel, encoder);
                                 }
                                 else
                                 {
-                                    String out = line+" was not removed";
-                                    sendMessage(out, cchannel, encoder);
+                                    //friend was not removed successfully
+                                    sendMessage((errorMessage +"\n"), cchannel, encoder);
+                                    errorMessage ="";
                                 }
                                 //printFriendList(cchannel, encoder);
 
@@ -188,9 +207,14 @@ public class Server
                             else if(line.contains("/userdata"))
                             {
                                 String[] up = line.split(" ");
-                                if(checkUser(up[1], up[2])){
+                                if(checkUser(up[1], up[2]))
+                                {
                                     System.out.println(cchannel.socket().getPort());
                                     usersOnline.add(new User(filePath + up[1]+".txt", cchannel.socket().getPort()));
+                                }
+                                else
+                                {
+                                    sendMessage("User login has failed!\n", cchannel, encoder);
                                 }
                             }
                             else if(line.contains("/quit")){
@@ -269,16 +293,20 @@ public class Server
     //If false, new user file is created
     private static boolean checkUser(String username, String passwordHash){
         try{
+            //user exists
             BufferedReader br = new BufferedReader(new FileReader(filePath+username+".txt"));
             br.readLine();
             if(passwordHash.equals(br.readLine())){
                 System.out.println("Login Successful");
                 return true;
             }
+            //user password is wrong
             else{
                 System.out.println("Scum user couldn't log in");
+
                 return false;
             }
+        //the user does not exist
         }catch(FileNotFoundException fe){
             try{
                 Writer wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath+username+".txt"), "UTF-8"));
@@ -317,23 +345,36 @@ public class Server
             user.removeFriend(friendName);
             return true;
         }
-        else
+        else if(!userExists(friendName))
         {
-            return false;
+            errorMessage += (friendName + " is not a registered user. " + friendName +" was not removed from your friends list!");
         }
+        else if(!user.checkFriends(friendName))
+        {
+            errorMessage += (friendName + " is not in your list of friends. " + friendName +" was not removed from your friends list!");
+        }
+        return false;
     }
 
     //add user to the friend list
     public static boolean addFriend(String friendName, User user)
     {
-        if(userExists(user.getUserName()) && !user.checkFriends(friendName) &&  userExists(friendName)){
+        if(!user.checkFriends(friendName) &&  userExists(friendName))
+        {
             user.addFriend(friendName);
             return true;
         }
-        else
+        else if(!userExists(friendName))
         {
-            return false;
+            errorMessage += (friendName + " is not a registered user. " + friendName +" was not added to your friends list!");
         }
+        else if(user.checkFriends(friendName))
+        {
+            errorMessage += (friendName + " is already on your list of friends. " + friendName +" was not added to your friends list!");
+        }
+
+        return false;
+
     }
 
     public static String printFriendList(User user)
