@@ -52,9 +52,6 @@ public class Server
 
         DataOutputStream clientWriter;
 
-
-
-
         try
         {
            //trying to create new socket, default port for Project is 3265.
@@ -106,7 +103,7 @@ public class Server
                         cchannel.register(selector, SelectionKey.OP_READ);
 
                     }
-                   else{
+                   else{    //Reading message 
                         SocketChannel cchannel = (SocketChannel)key.channel();
                         if (key.isReadable()){
                             Socket socket = cchannel.socket();
@@ -144,16 +141,40 @@ public class Server
                             //////**********************************
                             //respond to client input
 
-                            //detect that the client wants to add a new user
+                            //detect that the client wants to add a new user to their friendslist
                             if(line.contains("/add "))
                             {
-
-
                             	line = line.replace("/add ","");
-                                System.out.println("Checking to make sure that " + line + " is a registered user...");
+                                System.out.println("adding "+line);
 
                                 //add user to the friend list
-                                addFriend(line, getUser(cchannel.socket().getPort()));
+                                if(addFriend(line, getUser(cchannel.socket().getPort())))
+                                {
+                                    sendMessage((line+" was added successfully"), cchannel, encoder);
+                                }
+                                else
+                                {
+                                    String out = line+" was not added";
+                                    sendMessage(out, cchannel, encoder);
+                                }
+                                //printFriendList(cchannel, encoder);
+
+                            }
+                            else if(line.contains("/remove "))
+                            {
+                            	line = line.replace("/remove ","");
+                                System.out.println("removing "+line);
+
+                                //add user to the friend list
+                                if(removeFriend(line, getUser(cchannel.socket().getPort())))
+                                {
+                                    sendMessage((line+" was removed successfully"), cchannel, encoder);
+                                }
+                                else
+                                {
+                                    String out = line+" was not removed";
+                                    sendMessage(out, cchannel, encoder);
+                                }
                                 //printFriendList(cchannel, encoder);
 
                             }
@@ -163,14 +184,7 @@ public class Server
                                 String friends = printFriendList(getUser(cchannel.socket().getPort()));
                                 sendMessage(friends, cchannel, encoder);
                             }
-                            else if(line.contains("/remove "))
-                            {
-                                line = line.replace("/remove ", "");
-                                //removeFriend(line,cchannel, encoder);
-                                //printFriendList(cchannel, encoder);
-
-                            }
-
+                            //Contains login information
                             else if(line.contains("/userdata"))
                             {
                                 String[] up = line.split(" ");
@@ -227,16 +241,6 @@ public class Server
         return null;
     }
 
-    public void sendMessage(String msg)
-    {
-        return;
-    }
-
-    public byte[] receiveMessage()
-    {
-        return null;
-    }
-
     //Check if a user exists at all
     public static boolean userExists(String username){
         try{
@@ -260,6 +264,9 @@ public class Server
         return null;
     }
 
+    //Takes username and password, first checks if the user exists
+    //If true, passwordHash is compared
+    //If false, new user file is created
     private static boolean checkUser(String username, String passwordHash){
         try{
             BufferedReader br = new BufferedReader(new FileReader(filePath+username+".txt"));
@@ -303,18 +310,29 @@ public class Server
         return bytesSent;
     }
 
-    public static void removeFriend(String friendName, User user)
+    //Self explanatory, removes friend from users friend list
+    public static boolean removeFriend(String friendName, User user)
     {
         if(userExists(user.getUserName()) && user.checkFriends(friendName)){
             user.removeFriend(friendName);
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
     //add user to the friend list
-    public static void addFriend(String friendName, User user)
+    public static boolean addFriend(String friendName, User user)
     {
-        if(userExists(user.getUserName()) && !user.checkFriends(friendName)){
+        if(userExists(user.getUserName()) && !user.checkFriends(friendName) &&  userExists(friendName)){
             user.addFriend(friendName);
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 

@@ -22,7 +22,7 @@ public class User{
   private int portNumber;
   private ArrayList<String> friendsList = new ArrayList<String>();;
 
-  //For client
+    //For client
     public User()
     {
         username = "";
@@ -31,14 +31,14 @@ public class User{
         initUser();
     }
 
-  //For new user on Server
+    //For new user on Server
     public User(String username, String passwordHash)
     {
       this.username = username;
       this.passwordHash = passwordHash;
     }
 
-  //For existing user on server
+    //For existing user on server
     public User(String fileName, int portNumber){
         this.portNumber = portNumber;
         //read file

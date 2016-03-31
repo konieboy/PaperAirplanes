@@ -26,13 +26,6 @@ import java.util.concurrent.*;
   *  /listfriends 		               -- show friends
   */
 
-/* Things that need to be added
-   -Check that friend you want to add is also in the list of the registered users
-   -check that the user you are connecting to is a registered user (done)
-   -put friend list server side
-   -when you register your login, details saved on server ***
-*/
-
 public class Client
 {
 	 static Socket clientSocket = null;
@@ -74,7 +67,7 @@ public class Client
 			while(input.ready()){
 				tmpLine = input.readLine();
 				line = line + "\n" + tmpLine;
-			}//line = line + "\n";
+			}
 		}catch(Exception e){
 			System.out.println("Something went wrong :(");
 		}
