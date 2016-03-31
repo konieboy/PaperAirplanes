@@ -28,208 +28,6 @@ public class Server
   //Return true: in list of registeredUsers
 
 
-  public static void removeFriend(String friendName, SocketChannel cchannel, CharsetEncoder encoder)
-  {
-    //check if is actually already added
-    if (!checkFriendList(friendName))
-    {
-      System.out.println( friendName + " has not been added as a friend. Add friends before you remove them!");
-      try
-      {
-          sendMessage( (friendName + " has not been added as a friend. Add friends before you remove them!") ,cchannel,encoder);
-      }
-      catch(IOException e)
-      {
-          System.out.println("Could not send message #1002");
-      }
-    }
-
-    else
-    {
-        //remove user from the friend list
-        System.out.println( friendName + " has been found in your friend list...");
-        removeUser(friendName);
-        System.out.println( friendName +  " has successfully removed from your friend list..." );
-        try
-        {
-            sendMessage( (friendName + " has been found in your friend list...\n" + friendName +  " has successfully removed from your friend list...\n" ) ,cchannel,encoder);
-        }
-        catch(IOException e)
-        {
-            System.out.println("Could not send message #1003");
-        }
-
-    }
-  }
-
-  public static void removeUser(String friendName)
-  {
-      try
-      {
-          File friendList = new File(filePath);
-          File tempFriendList = new File("temporaryFriendList.txt");
-          BufferedReader reader = new BufferedReader(new FileReader(friendList));
-          BufferedWriter writer = new BufferedWriter(new FileWriter(tempFriendList));
-
-          String lineToRemove = friendName;
-          String currentLine;
-
-          while((currentLine = reader.readLine()) != null)
-          {
-              // trim newline when comparing with lineToRemove
-              String trimmedLine = currentLine.trim();
-              if(trimmedLine.equals(lineToRemove)) continue;
-              writer.write(currentLine + System.getProperty("line.separator"));
-          }
-          writer.close();
-          reader.close();
-          tempFriendList.renameTo(friendList);
-      }
-      catch (IOException e)
-      {
-          System.out.println(e);
-      }
-  }
-
-  public static void addFriend(String friendName, SocketChannel cchannel, CharsetEncoder encoder)
-  {
-      //check if user is already in the friend list
-    if (checkFriendList(friendName))
-    {
-        System.out.println(friendName + " is already in your friend list. " + friendName + " was not added to your friend list!");
-        //send message to Client
-        try
-        {
-            sendMessage( (friendName + " is already in your friend list. " + friendName + " was not added to your friend list!") ,cchannel,encoder);
-        }
-        catch(IOException e)
-        {
-            System.out.println("Could not send message #1000");
-        }
-    }
-
-    else if (!searchForName(friendName))
-    {
-        System.out.println(friendName + " is not a registered user. " + friendName + " was not added to your friend list!");
-
-        //send message to Client
-        try
-        {
-            sendMessage( (friendName + " is not a registered user. " + friendName + " was not added to your friend list!") ,cchannel,encoder);
-        }
-        catch(IOException e)
-        {
-            System.out.println("Could not send message #1001");
-        }
-    }
-    else
-    {
-      //add user to the friend list
-      addUser(friendName);
-    }
-  }
-
-  //add user to the friend list
-  public static void addUser(String friendName)
-  {
-      try
-      {
-          Writer output;
-          output = new BufferedWriter(new FileWriter(filePath, true));
-          output.append(friendName + "\n");
-          output.close();
-      }
-      catch (IOException e)
-      {
-          System.out.println(e);
-      }
-  }
-
-  //False: friend not found in the list
-  //True: friend already added to list
-  public static boolean checkFriendList(String friendName)
-  {
-      File friendFile = new File(filePath);
-      if(!friendFile.exists()) {
-           try
-           {
-              friendFile.createNewFile();
-           }
-           catch (IOException e)
-           {
-             System.out.println(e);
-           }
-      }
-      try
-      {
-          FileOutputStream oFile = new FileOutputStream(filePath, true);
-
-
-              Scanner scanner = new Scanner(friendFile);
-              while(scanner.hasNextLine())
-              {
-                    String testLine = scanner.nextLine();
-                    if (testLine.equals(friendName))
-                    {
-                        //matching name found, warn user
-                        return true;
-                    }
-              }
-
-      }
-      catch (FileNotFoundException e)
-      {
-          System.out.println(e);
-      }
-      //no matching name found, add friend
-      return false;
-  }
-
-
-
-
-
-  public static void printFriendList(SocketChannel cchannel,CharsetEncoder encoder)
-  {
-      String friendList = "";
-      File friendFile = new File(filePath);
-      if(!friendFile.exists())
-      {
-          try
-          {
-              friendFile.createNewFile();
-          }
-              catch (IOException e)
-          {
-              System.out.println(e);
-          }
-      }
-
-      try
-      {
-          FileOutputStream oFile = new FileOutputStream(filePath, true);
-          Scanner scanner = new Scanner(friendFile);
-          friendList = (friendList + "\n\n----- Friend List -----");
-          int  friendCount = 0;
-          while(scanner.hasNextLine())
-          {
-            friendCount++;
-            String testLine = scanner.nextLine();
-            System.out.println(friendCount + ") " + testLine);
-            friendList = (friendList + "\n" + testLine);
-          }
-          oFile.close();
-          scanner.close();
-          sendMessage((friendList + "\n"),cchannel,encoder);
-      }
-      catch (IOException e)
-      {
-          System.out.println(e);
-      }
-      System.out.print("\n");
-
-
-  }
 
   public static void main(String args[])
   {
@@ -342,22 +140,21 @@ public class Server
                             System.out.println("Checking to make sure that " + line + " is a registered user...");
 
                             //add user to the friend list
-                            addFriend(line, cchannel, encoder);
-                            printFriendList(cchannel, encoder);
+                            addFriend(line, getUser(cchannel.socket().getPort()));
+                            //printFriendList(cchannel, encoder);
 
                         }
                         else if (line.contains("/printfriends" ))
                         {
                             line = line.replace("/printfriends ", "");
-                            printFriendList(cchannel, encoder);
-
-
+                            String friends = printFriendList(getUser(cchannel.socket().getPort()));
+                            sendMessage(friends, cchannel, encoder);
                         }
                         else if(line.contains("/remove "))
                         {
                             line = line.replace("/remove ", "");
-                            removeFriend(line,cchannel, encoder);
-                            printFriendList(cchannel, encoder);
+                            //removeFriend(line,cchannel, encoder);
+                            //printFriendList(cchannel, encoder);
 
                         }
 
@@ -369,8 +166,20 @@ public class Server
                                 usersOnline.add(new User(filePath + up[1]+".txt", cchannel.socket().getPort()));
                             }
                         }
-
-
+                        else if(line.contains("/quit")){
+                            User outUser = getUser(cchannel.socket().getPort());
+                            String toFile = outUser.toString();
+                            try
+                            {
+                                Writer wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath+outUser.getUserName()+".txt"), "UTF-8"));
+                                wr.write(toFile);
+                                wr.close();
+                            }
+                            catch(Exception f)
+                            {
+                                f.printStackTrace();
+                            }
+                        }
                         else
                         {
                            //Not a command
@@ -397,11 +206,10 @@ public class Server
         }
     }
 
-    catch (Exception e) {
+    catch (Exception e)
+    {
         e.printStackTrace();
-        System.out.println("kyel");
-     }
-
+    }
   }
 
   public RoomServer startRoomServer()
@@ -419,6 +227,7 @@ public class Server
       return null;
   }
 
+  //Delete??????
   private static Boolean searchForName(String name) {
 
 	  try
@@ -436,10 +245,33 @@ public class Server
 	  }
 	  catch (IOException e)
 	    {
-	        System.out.println(e);
+	        e.printStackTrace();
 	    }
 	  return false;
-  }
+    }
+
+    //Check if a user exists at all
+    public static boolean userExists(String username){
+        try{
+            FileReader fr = new FileReader(filePath+username+".txt");
+            return true;
+        }catch(FileNotFoundException e){
+            return false;
+        }
+    }
+
+    //If returns null user is not online
+    public static User getUser(int portNumber)
+    {
+        for(User u: usersOnline)
+        {
+            if(u.getPortNumber() == portNumber)
+            {
+                return u;
+            }
+        }
+        return null;
+    }
 
   private static boolean checkUser(String username, String passwordHash){
       try{
@@ -450,6 +282,7 @@ public class Server
               return true;
           }
           else{
+              System.out.println("Scum user couldn't log in");
               return false;
           }
       }catch(FileNotFoundException fe){
@@ -481,5 +314,25 @@ public class Server
         outBuf.flip();
         int bytesSent = cchannel.write(outBuf);		// send to client
         return bytesSent;
+    }
+
+    public static void removeFriend(String friendName, User user)
+    {
+        if(userExists(user.getUserName()) && user.checkFriends(friendName)){
+            user.removeFriend(friendName);
+        }
+    }
+
+    //add user to the friend list
+    public static void addFriend(String friendName, User user)
+    {
+        if(userExists(user.getUserName()) && !user.checkFriends(friendName)){
+            user.addFriend(friendName);
+        }
+    }
+
+    public static String printFriendList(User user)
+    {
+        return user.printFriends();
     }
 }

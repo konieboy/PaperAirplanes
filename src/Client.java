@@ -120,7 +120,7 @@ public class Client
 		//Initialize the user
 		User user = new User();
 		try{
-			output.writeBytes("/userdata "+user.export());
+			output.writeBytes("/userdata "+user.login());
 		}catch(Exception e){
 			System.out.println("NO");
 			System.exit(0);

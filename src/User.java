@@ -20,14 +20,13 @@ public class User{
   private String username;
   private String passwordHash;
   private int portNumber;
-  private ArrayList<String> friendsList;
+  private ArrayList<String> friendsList = new ArrayList<String>();;
 
   //For client
   public User()
   {
       username = "";
       passwordHash = "";
-      friendsList = new ArrayList<String>();
 
       initUser();
   }
@@ -62,18 +61,50 @@ public class User{
       }
   }
 
-  public String export()
+  public String login()
   {
       String info = (username + " " + passwordHash);
 
       return info;
   }
 
-  //Import from a file
-  // public String import()
-  // {
-  //     return "6545445";
-  // }
+  public String toString(){
+      String output = username+"\n"+passwordHash+"\n";
+      for(String s: friendsList){
+          output = output+s+"\n";
+      }
+      return output;
+  }
+
+  public void addFriend(String friendName)
+  {
+      friendsList.add(friendName);
+  }
+
+  public void removeFriend(String friendName)
+  {
+      friendsList.remove(friendName);
+  }
+
+  public String printFriends(){
+      String friends = "";
+      for(String s: friendsList){
+          friends = friends+s+"\n";
+      }
+      return friends;
+  }
+
+  public int getPortNumber(){
+      return portNumber;
+  }
+
+  public String getUserName(){
+      return username;
+  }
+
+  public boolean checkFriends(String friendName){
+      return(friendsList.contains(friendName));
+  }
 
   public void initUser()
   {
