@@ -119,6 +119,12 @@ public class Client
 
 		//Initialize the user
 		User user = new User();
+		try{
+			output.writeBytes("/userdata "+user.export());
+		}catch(Exception e){
+			System.out.println("NO");
+			System.exit(0);
+		}
 
 		//Callable objects
 		Callable<String> userInputTask = () -> {

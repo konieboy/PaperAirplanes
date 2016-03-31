@@ -20,4 +20,8 @@ public class CryptoTools{
     public byte[] encryptMessage(String messageIn, String keySeed){
         return messageIn.getBytes();
     }
+
+    public String hash(String password){
+        return password;        //For now
+    }
 }

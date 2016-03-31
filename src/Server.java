@@ -18,11 +18,11 @@ import java.util.*;
  */
 public class Server
 {
-  private ArrayList<String> user;
-  private ArrayList<Integer> connectedClientID;
-  private ArrayList<RoomServer> currentRooms;
+  private static ArrayList<User> usersOnline = new ArrayList<User>();
+  private static ArrayList<Integer> connectedClientID = new ArrayList<Integer>();
+  private static ArrayList<RoomServer> currentRooms = new ArrayList<RoomServer>();
   private static int BUFFERSIZE = 256;
-  static final String filePath = "friendList.txt";
+  private static final String filePath = "users/";
 
   //Return false: not in list of registeredUsers
   //Return true: in list of registeredUsers
@@ -346,7 +346,6 @@ public class Server
                             printFriendList(cchannel, encoder);
 
                         }
-
                         else if (line.contains("/printfriends" ))
                         {
                             line = line.replace("/printfriends ", "");
@@ -364,8 +363,11 @@ public class Server
 
                         else if(line.contains("/userdata"))
                         {
-                              String[] up = line.split(" ");
-                              checkUser(up[1], up[2]);
+                            String[] up = line.split(" ");
+                            if(checkUser(up[1], up[2])){
+                                System.out.println(cchannel.socket().getPort());
+                                usersOnline.add(new User(filePath + up[1]+".txt", cchannel.socket().getPort()));
+                            }
                         }
 
 
@@ -396,7 +398,8 @@ public class Server
     }
 
     catch (Exception e) {
-        System.out.println(e);
+        e.printStackTrace();
+        System.out.println("kyel");
      }
 
   }
@@ -438,11 +441,11 @@ public class Server
 	  return false;
   }
 
-  private static boolean checkUser(String username, String password){
+  private static boolean checkUser(String username, String passwordHash){
       try{
-          BufferedReader br = new BufferedReader(new FileReader(username+".txt"));
+          BufferedReader br = new BufferedReader(new FileReader(filePath+username+".txt"));
           br.readLine();
-          if(password.equals(br.readLine())){
+          if(passwordHash.equals(br.readLine())){
               System.out.println("Login Successful");
               return true;
           }
@@ -451,20 +454,18 @@ public class Server
           }
       }catch(FileNotFoundException fe){
           try{
-              Writer wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(username+".txt"), "UTF-8"));
-              wr.write(username);
-              wr.write(password);
+              Writer wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath+username+".txt"), "UTF-8"));
+              wr.write(username+"\n");
+              wr.write(passwordHash+"\n");
               System.out.println("Profile Created");
+              wr.close();
+              return true;
           }catch(IOException ie){
               return false;
           }
       }catch(IOException ioe){
           return false;
       }
-      return false;
-
-
-
   }
 
   // sendMessage - sends string to client through TCP socketchannel
