@@ -41,10 +41,10 @@ public class Client
 
 
 	public static String userInputLoop(BufferedReader  userInput){
- 		try
- 		{
- 		   	System.out.print("Paper Planes: ");
- 			String line = userInput.readLine();
+		try
+		{
+			System.out.print("Paper Planes: ");
+			String line = userInput.readLine();
 			return line;
 		}catch(Exception e){
 			System.out.println("Something went wrong :(");
@@ -70,7 +70,7 @@ public class Client
 		String line = "";
 		String tmpLine = "";
 		try{
-		 	line = line + input.readLine();
+			line = line + input.readLine();
 			while(input.ready()){
 				tmpLine = input.readLine();
 				line = line + "\n" + tmpLine;
@@ -128,11 +128,11 @@ public class Client
 
 		//Callable objects
 		Callable<String> userInputTask = () -> {
-				return userInputLoop(userInput);
+			return userInputLoop(userInput);
 		};
 
 		Callable<String> serverInputTask = () -> {
-				return serverInputLoop(input);
+			return serverInputLoop(input);
 		};
 
 		//Future objects

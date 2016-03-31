@@ -23,97 +23,96 @@ public class User{
   private ArrayList<String> friendsList = new ArrayList<String>();;
 
   //For client
-  public User()
-  {
-      username = "";
-      passwordHash = "";
+    public User()
+    {
+        username = "";
+        passwordHash = "";
 
-      initUser();
-  }
+        initUser();
+    }
 
   //For new user on Server
-  public User(String username, String passwordHash)
-  {
+    public User(String username, String passwordHash)
+    {
       this.username = username;
       this.passwordHash = passwordHash;
-  }
+    }
 
   //For existing user on server
-  public User(String fileName, int portNumber){
-      this.portNumber = portNumber;
-      //read file
-      try
-      {
-          BufferedReader br = new BufferedReader(new FileReader(fileName));
-          username = br.readLine();
-          passwordHash = br.readLine();
-          String friend="";
-          while(br.ready())
-          {
-            friend = br.readLine();
-            friendsList.add(friend);
-          }
-          br.close();
-      }
-      catch(IOException z)
-      {
-          System.out.println("User: "+z);
-      }
-  }
+    public User(String fileName, int portNumber){
+        this.portNumber = portNumber;
+        //read file
+        try
+        {
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
+            username = br.readLine();
+            passwordHash = br.readLine();
+            String friend="";
+            while(br.ready())
+            {
+                friend = br.readLine();
+                friendsList.add(friend);
+            }
+            br.close();
+        }
+        catch(IOException z)
+        {
+            System.out.println("User: "+z);
+        }
+    }
 
-  public String login()
-  {
-      String info = (username + " " + passwordHash);
+    public String login()
+    {
+        String info = (username + " " + passwordHash);
+        return info;
+    }
 
-      return info;
-  }
+    public String toString(){
+        String output = username+"\n"+passwordHash+"\n";
+        for(String s: friendsList){
+            output = output+s+"\n";
+        }
+        return output;
+    }
 
-  public String toString(){
-      String output = username+"\n"+passwordHash+"\n";
-      for(String s: friendsList){
-          output = output+s+"\n";
-      }
-      return output;
-  }
+    public void addFriend(String friendName)
+    {
+        friendsList.add(friendName);
+    }
 
-  public void addFriend(String friendName)
-  {
-      friendsList.add(friendName);
-  }
+    public void removeFriend(String friendName)
+    {
+        friendsList.remove(friendName);
+    }
 
-  public void removeFriend(String friendName)
-  {
-      friendsList.remove(friendName);
-  }
+    public String printFriends(){
+        String friends = "";
+        for(String s: friendsList){
+            friends = friends+s+"\n";
+        }
+        return friends;
+    }
 
-  public String printFriends(){
-      String friends = "";
-      for(String s: friendsList){
-          friends = friends+s+"\n";
-      }
-      return friends;
-  }
+    public int getPortNumber(){
+        return portNumber;
+    }
 
-  public int getPortNumber(){
-      return portNumber;
-  }
+    public String getUserName(){
+        return username;
+    }
 
-  public String getUserName(){
-      return username;
-  }
+    public boolean checkFriends(String friendName){
+        return(friendsList.contains(friendName));
+    }
 
-  public boolean checkFriends(String friendName){
-      return(friendsList.contains(friendName));
-  }
-
-  public void initUser()
-  {
-      System.out.print("Enter your username: ");
-      Scanner userIn = new Scanner(System.in);
-      username = userIn.nextLine();
-      System.out.print("Enter your password: ");
-      String password = userIn.nextLine();
-      CryptoTools crypto = new CryptoTools();
-      passwordHash = crypto.hash(password);
-  }
+    public void initUser()
+    {
+        System.out.print("Enter your username: ");
+        Scanner userIn = new Scanner(System.in);
+        username = userIn.nextLine();
+        System.out.print("Enter your password: ");
+        String password = userIn.nextLine();
+        CryptoTools crypto = new CryptoTools();
+        passwordHash = crypto.hash(password);
+    }
 }

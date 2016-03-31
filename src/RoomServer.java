@@ -12,36 +12,36 @@
  */
 public class RoomServer
 {
-  private int roomID;
-  private int roomType;
+    private int roomID;
+    private int roomType;
 
-  public RoomServer()
-  {
+    public RoomServer()
+    {
 
-  }
+    }
 
-  public void closeRoomServer()
-  {
+    public void closeRoomServer()
+    {
 
-  }
+    }
 
-  public byte[] receiveMessage()
-  {
+    public byte[] receiveMessage()
+    {
       return null;
-  }
+    }
 
-  public byte[] receiveFile()
-  {
-      return null;
-  }
+    public byte[] receiveFile()
+    {
+        return null;
+    }
 
-  public void forwardMessage(byte[] msg)
-  {
+    public void forwardMessage(byte[] msg)
+    {
 
-  }
+    }
 
-  public void forwardFile(String filename)
-  {
+    public void forwardFile(String filename)
+    {
 
-  }
+    }
 }

@@ -12,10 +12,10 @@
  */
 public class RoomClient{
 
-  private static int roomClientID;
-  private static int roomServerID;
+    private static int roomClientID;
+    private static int roomServerID;
 
-  public static void main(String [] args){
+    public static void main(String [] args){
       try{
           roomClientID = Integer.parseInt(args[0]);
           roomServerID = Integer.parseInt(args[1]);
@@ -23,30 +23,30 @@ public class RoomClient{
           System.exit(0);
       }
       while(true);
-  }
+    }
 
-  public static void sendMessage(String msg)
-  {
+    public static void sendMessage(String msg)
+    {
 
-  }
+    }
 
-  public static byte[] receiveMessage()
-  {
+    public static byte[] receiveMessage()
+    {
     return null;
-  }
+    }
 
-  public static boolean sendFile(String filename)
-  {
+    public static boolean sendFile(String filename)
+    {
     return false;
-  }
+    }
 
-  public static byte[] encrypt(String msg)
-  {
+    public static byte[] encrypt(String msg)
+    {
     return null;
-  }
+    }
 
-  public static String decrypt(byte[] msg)
-  {
+    public static String decrypt(byte[] msg)
+    {
     return null;
-  }
+    }
 }
