@@ -98,6 +98,13 @@ public class Client
 			System.out.println("Something went wrong :(");
 			System.exit(0);
 		}
+		if (line.contains("/usersOnline"))
+		{
+			line = line.replace("/usersOnline","");
+			System.out.println(line);
+			System.exit(0);
+		}
+
 		if (line.contains("/request from "))
 		{
 			line = line.replace("/request from  ","");

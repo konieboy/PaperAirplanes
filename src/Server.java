@@ -242,11 +242,17 @@ public class Server
                                 //printFriendList(cchannel, encoder);
 
                             }
-                            else if (line.contains("/printfriends" ))
+                            else if (line.contains("/friends" ))
                             {
-                                line = line.replace("/printfriends ", "");
+                                line = line.replace("/friends ", "");
                                 String friends = printFriendList(getUser(cchannel.socket().getPort()));
                                 sendMessage(friends, cchannel, encoder);
+                            }
+                            else if (line.contains("/online" ))
+                            {
+                                line = line.replace("/online ", "");
+                                String online = printOnlineUsers();
+                                sendMessage(online, cchannel, encoder);
                             }
                             //Contains login information
                             else if(line.contains("/userdata"))
@@ -331,6 +337,16 @@ public class Server
             }
         }
         return null;
+    }
+
+    public static String printOnlineUsers()
+    {
+        String users = "/usersOnline" + "\n";
+        for(User u: usersOnline)
+        {
+            users += u.getUserName() + "\n";
+        }
+        return users;
     }
 
     //Takes username and password, first checks if the user exists
