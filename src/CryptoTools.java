@@ -76,8 +76,8 @@ public class CryptoTools{
         byte[] salt = new byte[16];
         randNum.nextBytes(salt);
         String output = hashPasswordHelper(password, salt, iterations, 128);
-        //return password;        //For now
-        return output;        //for later
+        return password;        //For now
+        //return output;        //for later
     }
 
     public String hashPasswordHelper(String password, byte[] salt, int iterations, int hashLength) throws Exception{
