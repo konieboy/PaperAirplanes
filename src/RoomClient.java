@@ -3,6 +3,10 @@
 //Brendan Petras, Ethan Hamman, Konrad Wisniewski, Kyle Sutherland
 
 //Imports
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import java.util.concurrent.*;
 
 
 /**
@@ -10,19 +14,31 @@
  *  for a specific room on the chat server.  All user commands in
  *  this window are specific to the current room.
  */
+
+
 public class RoomClient{
 
-    private static String roomClientID;
-    private static String roomServerID;
+    private static String clientName;
+    private static String friendName;
 
     public static void main(String [] args){
+        Scanner reader = new Scanner(System.in);
       try{
-          roomClientID = (args[0]);
-          roomServerID = (args[1]);
-          System.out.println(roomClientID +": Wait for " +roomServerID + " to connect...");
+          clientName = (args[0]);
+          friendName = (args[1]);
+          System.out.println(clientName +": Wait for " +friendName + " to connect...");
       }catch(Exception e){
           System.exit(0);
       }
+
+      String lastLine = "";
+      System.out.println("Enter /chat if you to accept a chat with " + friendName + ". Type /exit to exit the chat:\n");
+      while(!lastLine.equals("/quit"))
+      {
+          lastLine = reader.nextLine();
+      }
+      System.exit(0);
+
       while(true);
     }
 
