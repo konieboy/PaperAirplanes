@@ -132,8 +132,12 @@ public class User{
                 validLogin = true;
             }
 
-         }
-        CryptoTools crypto = new CryptoTools();
-        passwordHash = crypto.hash(password);
+        }
+        try{
+            CryptoTools crypto = new CryptoTools();
+            passwordHash = crypto.hashPassword(password);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
 }
