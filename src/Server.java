@@ -173,7 +173,8 @@ public class Server
                                             friend = usersOnline.get(i);
                                             flag = true;
                                             System.out.println("MADE IT TO HERE");
-                                            String msg = "/request from " + getUser(cchannel.socket().getPort()).getUserName() + " to " + line;
+                                            String msg = "/request from " + getUser(cchannel.socket().getPort()).getUserName() + " to " + line + "\n";
+                                            System.out.println(msg);
                                             sendMessage(msg, friend.getCChannel(), encoder);
                                         }
                                     }
