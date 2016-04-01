@@ -49,13 +49,13 @@ public class CryptoTools{
 
     public String hashPassword(String password) throws Exception{
         byte[] salt = new byte[16];
+        randNum.nextBytes(salt);
         String output = hashPasswordHelper(password, salt, iterations, 128);
         return password;        //For now
         //return output;        //for later
     }
 
     public String hashPasswordHelper(String password, byte[] salt, int iterations, int hashLength) throws Exception{
-        randNum.nextBytes(salt);
         PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt, iterations, hashLength);
         SecretKeyFactory keyFac = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         byte[] hash = keyFac.generateSecret(keySpec).getEncoded();
@@ -75,7 +75,29 @@ public class CryptoTools{
         return output;
     }
 
-    public Boolean verifyPassword(String password, String hash) throws Exception{
+    public Boolean verifyPassword(String password, String saltyHash) throws Exception{
+        byte[] salt = new byte[16];
+        byte[] saltHashArr = saltyHash.getBytes();
+        byte[] hashIn = new byte[saltHashArr.length - salt.length];
+
+        int arrCounter = 0;
+        for(int i = 0; i < salt.length; i++){
+            salt[i] = saltHashArr[arrCounter];
+            arrCounter++;
+        }for(int i = 0; i < hashIn.length; i++){
+            hashIn[i] = saltHashArr[arrCounter];
+            arrCounter++;
+        }
+
+        PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt, iterations, 128);
+        SecretKeyFactory keyFac = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        byte[] calcedHash = keyFac.generateSecret(keySpec).getEncoded();
+
+        String hashInStr = new String(hashIn);
+        String calcedHashStr = new String(calcedHash);
+
+        if(hashInStr.equals(calcedHashStr))
+            return true;
         return false;
     }
 }
