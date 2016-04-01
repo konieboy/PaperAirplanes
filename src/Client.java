@@ -40,6 +40,7 @@ public class Client
              Runtime r = Runtime.getRuntime();
 			 String[] users = userAndFriend.split(" ");
 			 commands +=  users[0] + " "  + users[2];
+			 System.out.println(commands);
  		 	 String[] cmdArray = {"gnome-terminal", "-e", commands + " ; $SHELL"};
              r.exec(cmdArray).waitFor();
          }
@@ -75,9 +76,7 @@ public class Client
 	}
 
 	public static void processServerInput(String line){
-		if(!line.equals("")){
-			System.out.println(line);
-		}
+		
 		if (line.contains("User login has failed!"))
 		{
 			System.out.println("Something went wrong :(");
@@ -91,7 +90,7 @@ public class Client
 
 		if (line.contains("/request from "))
 		{
-			line = line.replace("/request from  ","");
+			line = line.replace("/request from ","");
 			System.out.println("Launching new chat room...");
 			//System.exit(0);
 			launchTerminal(line, "java RoomClient ");

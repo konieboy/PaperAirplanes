@@ -133,6 +133,7 @@ public class Server
                                     {
                                         f.printStackTrace();
                                     }
+                                    usersOnline.remove(outUser);
                                 }catch(NullPointerException b)
                                 {
                                     System.out.println("User not created");
@@ -244,13 +245,11 @@ public class Server
                             }
                             else if (line.contains("/friends" ))
                             {
-                                line = line.replace("/friends ", "");
                                 String friends = printFriendList(getUser(cchannel.socket().getPort()));
                                 sendMessage(friends, cchannel, encoder);
                             }
                             else if (line.contains("/online" ))
                             {
-                                line = line.replace("/online ", "");
                                 String online = printOnlineUsers();
                                 sendMessage(online, cchannel, encoder);
                             }
@@ -281,6 +280,7 @@ public class Server
                                 {
                                     f.printStackTrace();
                                 }
+                                usersOnline.remove(outUser);
                             }
                             else
                             {
