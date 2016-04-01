@@ -33,13 +33,13 @@ public class Client
 	 static BufferedReader input = null;
 
 
-	 public static void launchTerminal (String clientName,String friendName, String commands)
+	 public static void launchTerminal (String userAndFriend, String commands)
      {
          try
          {
              Runtime r = Runtime.getRuntime();
-			 commands +=  clientName + " "  + friendName;
-			 //commands =  "java RoomClient 1234 1234";
+			 String[] users = userAndFriend.split(" ");
+			 commands +=  users[0] + " "  + users[2];
  		 	 String[] cmdArray = {"gnome-terminal", "-e", commands + " ; $SHELL"};
              r.exec(cmdArray).waitFor();
          }
@@ -54,7 +54,7 @@ public class Client
 
      }
 
-	public static String userInputLoop(BufferedReader  userInput){
+	public static String userInputLoop(BufferedReader userInput){
 		try
 		{
 			System.out.print("Paper Planes: ");
@@ -74,13 +74,38 @@ public class Client
 		}
 	}
 
-	public static void processServerInput(String lineIn){
-		if(!lineIn.equals("")){
-			System.out.println(lineIn);
+	public static void processServerInput(String line){
+		if(!line.equals("")){
+			System.out.println(line);
+		}
+		if (line.contains("User login has failed!"))
+		{
+			System.out.println("Something went wrong :(");
+			System.exit(0);
+		}
+		if (line.contains("/usersOnline"))
+		{
+			line = line.replace("/usersOnline","");
+			System.out.println(line);
+		}
+
+		if (line.contains("/request from "))
+		{
+			line = line.replace("/request from  ","");
+			System.out.println("Launching new chat room...");
+			//System.exit(0);
+			launchTerminal(line, "java RoomClient ");
+		}
+		if (line.contains("/connect to a chat room "))
+		{
+			line = line.replace("/connect to a chat room ","");
+			System.out.println("Launching new chat room...");
+			//System.exit(0);
+			launchTerminal(line, "java RoomClient ");
 		}
 	}
 
-	public static String serverInputLoop(BufferedReader input, String userName){
+	public static String serverInputLoop(BufferedReader input){
 		String line = "";
 		String tmpLine = "";
 		try{
@@ -91,33 +116,6 @@ public class Client
 			}
 		}catch(Exception e){
 			System.out.println("Something went wrong :(");
-		}
-
-		if (line.contains("User login has failed!"))
-		{
-			System.out.println("Something went wrong :(");
-			System.exit(0);
-		}
-		if (line.contains("/usersOnline"))
-		{
-			line = line.replace("/usersOnline","");
-			System.out.println(line);
-			System.exit(0);
-		}
-
-		if (line.contains("/request from "))
-		{
-			line = line.replace("/request from  ","");
-			System.out.println("Launching new chat room...");
-			//System.exit(0);
-			launchTerminal(userName, line, "java RoomClient ");
-		}
-		if (line.contains("/connect to a chat room "))
-		{
-			line = line.replace("/connect to a chat room ","");
-			System.out.println("Launching new chat room...");
-			//System.exit(0);
-			launchTerminal(userName, line, "java RoomClient ");
 		}
 		return line;
 	}
@@ -174,7 +172,7 @@ public class Client
 		};
 
 		Callable<String> serverInputTask = () -> {
-			return serverInputLoop(input,userName);
+			return serverInputLoop(input);
 		};
 
 		//Future objects
