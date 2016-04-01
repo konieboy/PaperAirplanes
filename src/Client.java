@@ -31,7 +31,7 @@ public class Client
 	 static Socket clientSocket = null;
 	 static DataOutputStream output = null;
 	 static BufferedReader input = null;
-
+	 static User userProfile = null;
 
 	 public static void launchTerminal (String userAndFriend, String commands)
      {
@@ -39,8 +39,8 @@ public class Client
          {
              Runtime r = Runtime.getRuntime();
 			 String[] users = userAndFriend.split(" ");
+
 			 commands +=  users[0] + " "  + users[2];
-			 System.out.println(commands);
  		 	 String[] cmdArray = {"gnome-terminal", "-e", commands + " ; $SHELL"};
              r.exec(cmdArray).waitFor();
          }
@@ -76,31 +76,35 @@ public class Client
 	}
 
 	public static void processServerInput(String line){
-		
+
 		if (line.contains("User login has failed!"))
 		{
 			System.out.println("Something went wrong :(");
 			System.exit(0);
 		}
-		if (line.contains("/usersOnline"))
+		else if (line.contains("/usersOnline"))
 		{
 			line = line.replace("/usersOnline","");
 			System.out.println(line);
 		}
 
-		if (line.contains("/request from "))
+		else if (line.contains("/request from "))
 		{
 			line = line.replace("/request from ","");
 			System.out.println("Launching new chat room...");
 			//System.exit(0);
 			launchTerminal(line, "java RoomClient ");
 		}
-		if (line.contains("/connect to a chat room "))
+		else if (line.contains("/connect to a chat room "))
 		{
 			line = line.replace("/connect to a chat room ","");
 			System.out.println("Launching new chat room...");
 			//System.exit(0);
-			launchTerminal(line, "java RoomClient ");
+			launchTerminal(userProfile.getUserName() + " to " + line, "java RoomClient ");
+		}
+		else
+		{
+			System.out.println(line);
 		}
 	}
 
@@ -157,6 +161,7 @@ public class Client
 
 		//Initialize the user
 		User user = new User();
+		userProfile = user;
 
 		try{
 			output.writeBytes("/userdata "+user.login());
