@@ -16,6 +16,7 @@ public class CryptoTools{
 
     private byte[] iv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     private IvParameterSpec ivSpec = new IvParameterSpec(iv);
+    private int iterations = 30000;
 
     public CryptoTools() throws Exception{
         aesCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
@@ -48,7 +49,7 @@ public class CryptoTools{
 
     public String hashPassword(String password) throws Exception{
         byte[] salt = new byte[16];
-        String output = hashPasswordHelper(password, salt, 30000, 128);
+        String output = hashPasswordHelper(password, salt, iterations, 128);
         return password;        //For now
         //return output;        //for later
     }
@@ -70,11 +71,11 @@ public class CryptoTools{
             arrCounter++;
         }
 
-        String output = "";
+        String output = new String(outputArr);
         return output;
     }
 
-    public Boolean verifyPassword(String password, String hash){
+    public Boolean verifyPassword(String password, String hash) throws Exception{
         return false;
     }
 }
