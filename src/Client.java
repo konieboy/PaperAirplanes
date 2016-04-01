@@ -98,7 +98,7 @@ public class Client
 			System.out.println("Something went wrong :(");
 			System.exit(0);
 		}
-		if (line.contains("/request from  "))
+		if (line.contains("/request from "))
 		{
 			line = line.replace("/request from  ","");
 			System.out.println("Launching new chat room...");

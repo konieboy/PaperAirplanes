@@ -117,19 +117,25 @@ public class Server
 
                             // Read from socket
                             bytesRecv = cchannel.read(inBuffer);
-                            if (bytesRecv <= 0){
-                                System.out.println("read() error, or connection closed");
-                                User outUser = getUser(cchannel.socket().getPort());    //Write to user
-                                String toFile = outUser.toString();
-                                try
+                            if(bytesRecv <= 0)
+                            {
+                                try{
+                                    System.out.println("read() error, or connection closed");
+                                    User outUser = getUser(cchannel.socket().getPort());    //Write to user
+                                    String toFile = outUser.toString();
+                                    try
+                                    {
+                                        Writer wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath+outUser.getUserName()+".txt"), "UTF-8"));
+                                        wr.write(toFile);
+                                        wr.close();
+                                    }
+                                    catch(Exception f)
+                                    {
+                                        f.printStackTrace();
+                                    }
+                                }catch(NullPointerException b)
                                 {
-                                    Writer wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath+outUser.getUserName()+".txt"), "UTF-8"));
-                                    wr.write(toFile);
-                                    wr.close();
-                                }
-                                catch(Exception f)
-                                {
-                                    f.printStackTrace();
+                                    System.out.println("User not created");
                                 }
                                 key.cancel();  //deregister the socket
                                 continue;
