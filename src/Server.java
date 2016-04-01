@@ -25,6 +25,7 @@ public class Server
     private static ArrayList<RoomServer> currentRooms = new ArrayList<RoomServer>();
     private static int BUFFERSIZE = 256;
     private static final String filePath = "users/";
+    private static int roomID = 0;
 
     //Return false: not in list of registeredUsers
     //Return true: in list of registeredUsers
@@ -151,11 +152,35 @@ public class Server
                                 //make sure the other user is registered and in your friends list
                                 if(userExists(line) && getUser(cchannel.socket().getPort()).checkFriends(line))
                                 {
+
                                     //set up room server
-                                    //RoomServer roomServer = new roomServer;
+                                    RoomServer roomServer = new RoomServer(++roomID, 0, getUser(cchannel.socket().getPort()));
+                                    Boolean flag = false;
+                                    User friend;
+                                    //make sure friend is online before sending chat request
+
+                                    for(int i = 0; i < usersOnline.size(); i++)
+                                    {
+                                        if(usersOnline.get(i).getUserName().equals(line))
+                                        {
+                                            friend = usersOnline.get(i);
+                                            flag = true;
+                                            System.out.println("MADE IT TO HERE");
+                                            String msg = "/request from " + getUser(cchannel.socket().getPort()).getUserName() + " to " + line;
+                                            sendMessage(msg, friend.getCChannel(), encoder);
+                                        }
+                                    }
+
+                                    if(!flag)
+                                    {
+                                        System.out.println("User is not online");
+                                    }
+
+                                    //look up the friend in the onlineUser ArrayList
+                                    //if he is there then send a message to his client
 
                                     //send message to client to open up new terminal window with clientroom
-                                    sendMessage(("/connect to a chat room\n"), cchannel, encoder);
+                                    sendMessage(("/connect to a chat room " + line + "\n"), cchannel, encoder);
 
                                     //String myScript = "java Client";
                                         //launchTerminal(("Chat with " + line), "java Client");
@@ -224,7 +249,7 @@ public class Server
                                 if(checkUser(up[1], up[2]))
                                 {
                                     System.out.println(cchannel.socket().getPort());
-                                    usersOnline.add(new User(filePath + up[1]+".txt", cchannel.socket().getPort()));
+                                    usersOnline.add(new User(filePath + up[1]+".txt", cchannel.socket().getPort(), cchannel));
                                 }
                                 else
                                 {

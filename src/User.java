@@ -6,6 +6,9 @@
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.*;
+import java.nio.*;
+import java.net.*;
+import java.nio.channels.*;
 
 /**
  *  User class keeps track of the users profile while they are logged into
@@ -20,6 +23,7 @@ public class User{
   private String username;
   private String passwordHash;
   private int portNumber;
+  private SocketChannel cchannel;
   private ArrayList<String> friendsList = new ArrayList<String>();;
 
     //For client
@@ -39,8 +43,9 @@ public class User{
     }
 
     //For existing user on server
-    public User(String fileName, int portNumber){
+    public User(String fileName, int portNumber, SocketChannel cchannel){
         this.portNumber = portNumber;
+        this.cchannel = cchannel;
         //read file
         try
         {
@@ -101,6 +106,11 @@ public class User{
 
     public int getPortNumber(){
         return portNumber;
+    }
+
+    public SocketChannel getCChannel()
+    {
+        return cchannel;
     }
 
     public String getUserName(){

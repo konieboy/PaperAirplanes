@@ -12,13 +12,14 @@
  */
 public class RoomClient{
 
-    private static int roomClientID;
-    private static int roomServerID;
+    private static String roomClientID;
+    private static String roomServerID;
 
     public static void main(String [] args){
       try{
-          roomClientID = Integer.parseInt(args[0]);
-          roomServerID = Integer.parseInt(args[1]);
+          roomClientID = (args[0]);
+          roomServerID = (args[1]);
+          System.out.println(roomClientID +": Wait for " +roomServerID + " to connect...");
       }catch(Exception e){
           System.exit(0);
       }
