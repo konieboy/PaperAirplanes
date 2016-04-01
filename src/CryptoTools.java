@@ -20,6 +20,7 @@ public class CryptoTools{
     public CryptoTools() throws Exception{
         aesCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
         keyBytes = new byte[16];
+        randNum = randNum.getInstance("SHA1PRNG");
     }
 
     public byte[] encryptMessage(byte[] messageIn, String keySeed) throws Exception{
@@ -45,8 +46,32 @@ public class CryptoTools{
         return secKeySpec;
     }
 
-    public String hashPassword(String password){
+    public String hashPassword(String password) throws Exception{
+        byte[] salt = new byte[16];
+        String output = hashPasswordHelper(password, salt, 30000, 128);
         return password;        //For now
+        //return output;        //for later
+    }
+
+    public String hashPasswordHelper(String password, byte[] salt, int iterations, int hashLength) throws Exception{
+        randNum.nextBytes(salt);
+        PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt, iterations, hashLength);
+        SecretKeyFactory keyFac = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        byte[] hash = keyFac.generateSecret(keySpec).getEncoded();
+
+        byte[] outputArr = new byte[salt.length + hash.length];
+
+        int arrCounter = 0;
+        for(byte b : salt){
+            outputArr[arrCounter] = b;
+            arrCounter++;
+        }for(byte b : hash){
+            outputArr[arrCounter] = b;
+            arrCounter++;
+        }
+
+        String output = "";
+        return output;
     }
 
     public Boolean verifyPassword(String password, String hash){
