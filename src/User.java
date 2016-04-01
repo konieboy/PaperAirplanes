@@ -125,10 +125,10 @@ public class User{
 
             if (username.equals("") || password.equals("")){
                 System.out.print("Username and password can not be left empty, please try again!\n");
-            }
-            else if (username.contains(" ") || password.contains(" ")){
+            }else if (username.contains(" ") || password.contains(" ")){
                 System.out.print("Username and password can not contain spaces, please try again!\n");
-            }else{
+            }
+            else{
                 validLogin = true;
             }
 

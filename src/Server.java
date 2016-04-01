@@ -148,12 +148,26 @@ public class Server
                                 line = line.replace("/connect ","");
                                 System.out.println("Connecting to user: "+line);
 
-                                //open up new terminal window with chat
-                                
-                                //send request to the other user
+                                //make sure the other user is registered and in your friends list
+                                if(userExists(line) && getUser(cchannel.socket().getPort()).checkFriends(line))
+                                {
+                                    //set up room server
+                                    //RoomServer roomServer = new roomServer;
 
+                                    //send message to client to open up new terminal window with clientroom
+                                    sendMessage(("/connect to a chat room\n"), cchannel, encoder);
 
+                                    //String myScript = "java Client";
+                                        //launchTerminal(("Chat with " + line), "java Client");
+                                    //send request to the other user
+                                }
 
+                                else
+                                {
+                                    System.out.println(line + " is not in your friends list!");
+                                    sendMessage((line + " is not in your friends list!\n"), cchannel, encoder);
+
+                                }
                             }
                             //detect that the client wants to add a new user to their friendslist
                             else if(line.contains("/add "))
@@ -381,4 +395,6 @@ public class Server
     {
         return user.printFriends();
     }
+
+
 }

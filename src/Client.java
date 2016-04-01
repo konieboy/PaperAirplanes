@@ -33,6 +33,25 @@ public class Client
 	 static BufferedReader input = null;
 
 
+	 public static void launchTerminal (String windowName, String commands)
+     {
+         try
+         {
+             Runtime r = Runtime.getRuntime();
+             String myScript = "java RoomClient 1234 1234";
+             String[] cmdArray = {"gnome-terminal", "-e", myScript + " ; $SHELL"};
+             r.exec(cmdArray).waitFor();
+         }
+         catch (InterruptedException ex)
+         {
+             ex.printStackTrace();
+         }
+         catch (IOException ex)
+         {
+             ex.printStackTrace();
+         }
+     }
+
 	public static String userInputLoop(BufferedReader  userInput){
 		try
 		{
@@ -67,6 +86,12 @@ public class Client
 			while(input.ready()){
 				tmpLine = input.readLine();
 				line = line + "\n" + tmpLine;
+				if (line.contains("/connect to a chat room"))
+				{
+					System.out.println("Launching new chat room...");
+					//System.exit(0);
+					launchTerminal(("Chat with " + line), "java Client");
+				}
 			}
 		}catch(Exception e){
 			System.out.println("Something went wrong :(");
@@ -76,6 +101,12 @@ public class Client
 		{
 			System.out.println("Something went wrong :(");
 			System.exit(0);
+		}
+		if (line.contains("/connect to a chat room"))
+		{
+			System.out.println("Launching new chat room...");
+			//System.exit(0);
+			launchTerminal(("Chat with " + line), "java Client");
 		}
 		return line;
 	}
