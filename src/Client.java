@@ -33,13 +33,14 @@ public class Client
 	 static BufferedReader input = null;
 
 
-	 public static void launchTerminal (String windowName, String commands)
+	 public static void launchTerminal (String clientName,String friendName, String commands)
      {
          try
          {
              Runtime r = Runtime.getRuntime();
-             String myScript = "java RoomClient 1234 1234";
-             String[] cmdArray = {"gnome-terminal", "-e", myScript + " ; $SHELL"};
+			 commands +=  clientName + " "  + friendName;
+			 //commands =  "java RoomClient 1234 1234";
+ 		 	 String[] cmdArray = {"gnome-terminal", "-e", commands + " ; $SHELL"};
              r.exec(cmdArray).waitFor();
          }
          catch (InterruptedException ex)
@@ -50,6 +51,7 @@ public class Client
          {
              ex.printStackTrace();
          }
+
      }
 
 	public static String userInputLoop(BufferedReader  userInput){
@@ -78,7 +80,7 @@ public class Client
 		}
 	}
 
-	public static String serverInputLoop(BufferedReader input){
+	public static String serverInputLoop(BufferedReader input, String userName){
 		String line = "";
 		String tmpLine = "";
 		try{
@@ -86,12 +88,6 @@ public class Client
 			while(input.ready()){
 				tmpLine = input.readLine();
 				line = line + "\n" + tmpLine;
-				if (line.contains("/connect to a chat room"))
-				{
-					System.out.println("Launching new chat room...");
-					//System.exit(0);
-					launchTerminal(("Chat with " + line), "java Client");
-				}
 			}
 		}catch(Exception e){
 			System.out.println("Something went wrong :(");
@@ -102,11 +98,19 @@ public class Client
 			System.out.println("Something went wrong :(");
 			System.exit(0);
 		}
-		if (line.contains("/connect to a chat room"))
+		if (line.contains("/request from "))
 		{
+			line = line.replace("/request from  ","");
 			System.out.println("Launching new chat room...");
 			//System.exit(0);
-			launchTerminal(("Chat with " + line), "java Client");
+			launchTerminal(userName, line, "java RoomClient ");
+		}
+		if (line.contains("/connect to a chat room "))
+		{
+			line = line.replace("/connect to a chat room ","");
+			System.out.println("Launching new chat room...");
+			//System.exit(0);
+			launchTerminal(userName, line, "java RoomClient ");
 		}
 		return line;
 	}
@@ -149,20 +153,21 @@ public class Client
 
 		//Initialize the user
 		User user = new User();
+
 		try{
 			output.writeBytes("/userdata "+user.login());
 		}catch(Exception e){
 			System.out.println("NO");
 			System.exit(0);
 		}
-
+		String userName = user.getUserName();
 		//Callable objects
 		Callable<String> userInputTask = () -> {
 			return userInputLoop(userInput);
 		};
 
 		Callable<String> serverInputTask = () -> {
-			return serverInputLoop(input);
+			return serverInputLoop(input,userName);
 		};
 
 		//Future objects

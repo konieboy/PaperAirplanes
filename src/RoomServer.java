@@ -3,7 +3,7 @@
 //Brendan Petras, Ethan Hamman, Konrad Wisniewski, Kyle Sutherland
 
 //Imports
-
+import java.util.*;
 
 /**
  *  RoomServer is created when a new chat room is created and it handles
@@ -13,11 +13,14 @@
 public class RoomServer
 {
     private int roomID;
-    private int roomType;
+    private int roomType; // 0 = private; 1 = public
+    private ArrayList<User> userList = new ArrayList<User>();
 
-    public RoomServer()
+    public RoomServer(int roomID,int roomType, User user)
     {
-
+        this.roomID = roomID;
+        this.roomType = roomType;
+        userList.add(user);
     }
 
     public void closeRoomServer()
