@@ -5,6 +5,7 @@
 import javax.crypto.*;
 import javax.crypto.spec.*;
 import java.security.*;
+import java.util.*;
 
 /**
  *  CryptoTools class is the basis for all crypto related parts of the
@@ -38,7 +39,8 @@ public class CryptoTools{
      *  encrypted string.
      */
     public String encryptString(String strIn, String keySeedIn) throws Exception{
-        return new String(encryptMessage(strIn.getBytes(), keySeedIn));
+        //return new String(encryptMessage(strIn.getBytes(), keySeedIn));
+        return Arrays.toString(decryptMessage(strIn.getBytes(), keySeedIn));
     }
 
     /**
@@ -52,8 +54,13 @@ public class CryptoTools{
         return ciphertext;
     }
 
+    public byte[] arrayStrToArray(String strIn){
+        return new byte[10];
+    }
+
     public String decryptString(String strIn, String keySeedIn) throws Exception{
-        return new String(decryptMessage(strIn.getBytes(), keySeedIn));
+        byte[] strArray = arrayStrToArray(strIn);
+        return new String(decryptMessage(strArray, keySeedIn));
     }
 
     public byte[] decryptMessage(byte[] messageIn, String keySeed) throws Exception{
@@ -76,8 +83,8 @@ public class CryptoTools{
         byte[] salt = new byte[16];
         randNum.nextBytes(salt);
         String output = hashPasswordHelper(password, salt, iterations, 128);
-        //return password;        //For now
-        return output;        //for later
+        return password;        //For now
+        //return output;        //for later
     }
 
     public String hashPasswordHelper(String password, byte[] salt, int iterations, int hashLength) throws Exception{
@@ -124,8 +131,12 @@ public class CryptoTools{
         String hashInStr = new String(hashIn);
         String calcedHashStr = new String(calcedHash);
 
-        if(hashInStr.equals(calcedHashStr))
+        if(password.equals(saltyHash))
             return true;
         return false;
+
+        // if(hashInStr.equals(calcedHashStr))
+        //     return true;
+        // return false;
     }
 }
