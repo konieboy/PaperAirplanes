@@ -65,6 +65,7 @@ public class Client
 		{
 			System.out.print("Paper Planes: ");
 			String line = userInput.readLine();
+			line = line.replace(":-:userdata","");
 			return line;
 		}catch(Exception e){
 			e.printStackTrace();
@@ -162,7 +163,7 @@ public class Client
 		userProfile = user;
 
 		try{
-			output.writeBytes("/userdata "+user.login());
+			output.writeBytes(":-:userdata "+user.login());
 		}catch(Exception e){
 			System.out.println("NO");
 			System.exit(0);

@@ -25,7 +25,7 @@ public class RoomClient{
     private static String friendName;
     private static String serverIPAddress;
     private static int portNumber;
-    private static int myChannel;
+    private static int myID;
     private static int roomID;
 
     public static void main(String [] args){
@@ -34,6 +34,7 @@ public class RoomClient{
             clientName = (args[2]);
             friendName = (args[3]);
             roomID = Integer.parseInt(args[4]);
+            myID = Integer.parseInt(args[5]);
             System.out.println(clientName +": Wait for " +friendName + " to connect...");
         }catch(Exception e){
             System.exit(0);
@@ -64,17 +65,12 @@ public class RoomClient{
 
             //Getting the room channel
             try{
-    			output.writeBytes("/roomChannel");
+    			output.writeBytes(":-:roomChannel "+myID);
     		}catch(IOException e){
     			System.out.println("IO exception");
     		}
             try{
-                myChannel = Integer.parseInt(input.readLine());
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-            try{
-                output.writeBytes("/setChatChannel "+roomID+" "+clientName+ " "+myChannel);
+                output.writeBytes(":-:setChatChannel "+roomID+" "+clientName+ " "+myID);
             }catch(IOException e){
                 System.out.println("IO exception");
             }
@@ -150,7 +146,7 @@ public class RoomClient{
 	public static void processUserInput(String lineIn){
 		//System.out.println(lineIn);
 		try{
-			output.writeBytes("/room " + roomID + ":-:" + clientName + ":-:" + lineIn);
+			output.writeBytes(":-:room " + roomID + ":-:" + clientName + ":-:" + lineIn);
 		}catch(IOException e){
 			System.out.println("IO exception");
 		}

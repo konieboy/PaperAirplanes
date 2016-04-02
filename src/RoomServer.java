@@ -24,26 +24,26 @@ public class RoomServer
         userList.add(new tuple(friend,0));
     }
 
-    public void initUserChannels(String username, int userChannel)
+    public void initUserClientID(String username, int userClientID)
     {
         for(tuple t: userList){
             if(username.equals(t.getName()))
             {
-                t.setChannel(userChannel);
+                t.setClientID(userClientID);
             }
         }
     }
 
-    public int[] getChannels()
+    public int[] getClientIDs()
     {
-        int[] channels = new int[userList.size()];
+        int[] clientID = new int[userList.size()];
         int i=0;
         for(tuple t: userList)
         {
-            channels[i] = t.getChannel();
+            clientID[i] = t.getClientID();
             i++;
         }
-        return channels;
+        return clientID;
     }
     public void closeRoomServer()
     {
@@ -77,11 +77,11 @@ public class RoomServer
 
 class tuple{
     private User user;
-    private Integer channel;
+    private int clientID;
 
-    public tuple(User user, int channel){
+    public tuple(User user, int clientID){
         this.user = user;
-        this.channel = channel;
+        this.clientID = clientID;
     }
 
     public User getUser(){
@@ -92,12 +92,12 @@ class tuple{
         return user.getUserName();
     }
 
-    public int getChannel(){
-        return channel;
+    public int getClientID(){
+        return clientID;
     }
 
-    public void setChannel(int channel){
-        this.channel = channel;
+    public void setClientID(int clientID){
+        this.clientID = clientID;
     }
 
 }
