@@ -23,9 +23,11 @@ public class Server
     private static ArrayList<User> usersOnline = new ArrayList<User>();
     private static ArrayList<Integer> connectedClientID = new ArrayList<Integer>();
     private static ArrayList<RoomServer> currentRooms = new ArrayList<RoomServer>();
+    private static ArrayList<RoomClientTuple> clientRooms = new ArrayList<RoomClientTuple>();
     private static int BUFFERSIZE = 256;
     private static final String filePath = "users/";
     private static int roomID = 0;
+    private static int clientRoomID = 0;
     private static String host = "localhost";
 
     //Return false: not in list of registeredUsers
@@ -166,24 +168,23 @@ public class Server
 
                                     //set up room server
                                     currentRooms.add(new RoomServer(++roomID, 0, getUser(cchannel.socket().getPort()), getUserFromName(line)));
-                                    Boolean flag = false;
+                                    Boolean onlineFlag = false;
                                     User friend;
-                                    //make sure friend is online before sending chat request
 
+                                    //make sure friend is online before sending chat request
                                     for(int i = 0; i < usersOnline.size(); i++)
                                     {
                                         if(usersOnline.get(i).getUserName().equals(line))
                                         {
+                                            onlineFlag = true;
                                             friend = usersOnline.get(i);
-                                            flag = true;
-                                            System.out.println("MADE IT TO HERE");
-                                            String msg = "/request from " + getUser(cchannel.socket().getPort()).getUserName() + " to " + line + " " + roomID + "\n";
+                                            String msg = "/request from " + getUser(cchannel.socket().getPort()).getUserName() + " to " + line + " " + roomID + " "+(++clientRoomID)+"\n";
                                             System.out.println(msg);
                                             sendMessage(msg, friend.getCChannel(), encoder);
                                         }
                                     }
 
-                                    if(!flag)
+                                    if(!onlineFlag)
                                     {
                                         System.out.println("User is not online");
                                     }
@@ -192,7 +193,7 @@ public class Server
                                     //if he is there then send a message to his client
 
                                     //send message to client to open up new terminal window with clientroom
-                                    sendMessage(("/connect to a chat room " + line + " "+ roomID+  "\n"), cchannel, encoder);
+                                    sendMessage(("/connect to a chat room " + line + " "+ roomID+ " "+ (++clientRoomID)+"\n"), cchannel, encoder);
 
                                     //String myScript = "java Client";
                                         //launchTerminal(("Chat with " + line), "java Client");
@@ -207,6 +208,29 @@ public class Server
                                 }
                             }
                             //detect that the client wants to add a new user to their friendslist
+
+                            else if(line.contains("/sendMessage "))
+                            {
+
+                                Boolean onlineFlag = false;
+                                User friend;
+                                line = line.replace("/sendMessage ","");
+
+                                for(int i = 0; i < usersOnline.size(); i++)
+                                {
+                                    if(usersOnline.get(i).getUserName().equals(line))
+                                    {
+                                        onlineFlag = true;
+                                        friend = usersOnline.get(i);
+                                        //System.out.println("MADE IT TO HERE");
+                                        String msg = line;
+                                        System.out.println(msg);
+                                        sendMessage(msg, friend.getCChannel(), encoder);
+                                    }
+                                }
+
+                            }
+
                             else if(line.contains("/add "))
                             {
                             	line = line.replace("/add ","");
@@ -259,7 +283,7 @@ public class Server
                                 sendMessage(online, cchannel, encoder);
                             }
                             //Contains login information
-                            else if(line.contains("/userdata"))
+                            else if(line.contains(":-:userdata"))
                             {
                                 String[] up = line.split(" ");
                                 if(checkUser(up[1], up[2]))
@@ -272,15 +296,15 @@ public class Server
                                     sendMessage("User login has failed!\n", cchannel, encoder);
                                 }
                             }
-                            else if(line.contains("/room ")){
-                                line = line.replace("/room ","");
+                            else if(line.contains(":-:room ")){
+                                line = line.replace(":-:room ","");
                                 String[] deets = line.split(":-:");         //RoomID ClientName Message
-                                int[] theseChannels;
+                                int[] theseIDs;
                                 for(RoomServer r: currentRooms)
                                 {
                                     if(r.getRoomID() == Integer.parseInt(deets[0]))
                                     {
-                                        theseChannels = r.getChannels();
+                                        theseIDs = r.getClientIDs();
                                     }
                                 }
                                 /*
@@ -289,21 +313,22 @@ public class Server
                                     2. Implement roomClientTuple
                                         a. Tuple has ID and SocketChannel
                                 */
-                                for(int i=0;i<theseChannels.length;i++)
+                                //for(int i=0;i<theseChannels.length;i++)
                                 {
-                                    sendMessage(""+deets[1]+": "+deets[2]+"\n", new SocketChannel(host, theseChannels[i]), encoder);
+                                    //sendMessage((""+deets[1]+": "+deets[2]+"\n"), (new SocketChannel(host, theseChannels[i])), encoder);
                                 }
 
                             }
-                            else if(line.contains("/roomChannel")){
-                                sendMessage(cchannel, cchannel, encoder);
+                            else if(line.contains(":-:roomChannel ")){
+                                line = line.replace(":-:roomChannel ","");
+                                clientRooms.add(new RoomClientTuple(Integer.parseInt(line), cchannel));
                             }
-                            else if(line.contains("/setChatChannel ")){
-                                line = line.replace("/setChatChannel ","");
+                            else if(line.contains(":-:setChatChannel ")){
+                                line = line.replace(":-:setChatChannel ","");
                                 String[] roomUserInfo = line.split(" ");
                                 for(RoomServer r: currentRooms){
                                     if(r.getRoomID() == Integer.parseInt(roomUserInfo[0])){
-                                        r.initUserChannels(roomUserInfo[1], Integer.parseInt(roomUserInfo[2]));
+                                        r.initUserClientID(roomUserInfo[1], Integer.parseInt(roomUserInfo[2]));
                                     }
                                 }
                             }
@@ -512,7 +537,7 @@ public class Server
         return user.printFriends();
     }
 
-    class RoomClientTuple{
+    static class RoomClientTuple{
 
         int roomClientID;
         SocketChannel cchannel;
@@ -520,6 +545,14 @@ public class Server
         public RoomClientTuple(int roomClientID, SocketChannel cchannel){
             this.roomClientID = roomClientID;
             this.cchannel = cchannel;
+        }
+
+        public int getRoomID(){
+            return roomClientID;
+        }
+
+        public SocketChannel getCChannel(){
+            return cchannel;
         }
     }
 }
