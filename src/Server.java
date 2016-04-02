@@ -329,7 +329,8 @@ public class Server
                             }
                             else if(line.contains(":-:roomChannel ")){
                                 line = line.replace(":-:roomChannel ","");
-                                clientRooms.add(new RoomClientTuple(Integer.parseInt(line), cchannel));
+                                String[] splits = line.split(" ");
+                                clientRooms.add(new RoomClientTuple(Integer.parseInt(splits[0]), cchannel));
                             }
                             else if(line.contains(":-:setChatChannel ")){
                                 line = line.replace(":-:setChatChannel ","");
