@@ -299,7 +299,7 @@ public class Server
                             else if(line.contains(":-:room ")){
                                 line = line.replace(":-:room ","");
                                 String[] deets = line.split(":-:");         //RoomID ClientName Message
-                                int[] theseIDs;
+                                int[] theseIDs = new int[usersOnline.size()];
                                 for(RoomServer r: currentRooms)
                                 {
                                     if(r.getRoomID() == Integer.parseInt(deets[0]))
@@ -313,9 +313,17 @@ public class Server
                                     2. Implement roomClientTuple
                                         a. Tuple has ID and SocketChannel
                                 */
-                                //for(int i=0;i<theseChannels.length;i++)
+                                SocketChannel aChannel = null;
+                                for(int i=0;i<theseIDs.length;i++)
                                 {
-                                    //sendMessage((""+deets[1]+": "+deets[2]+"\n"), (new SocketChannel(host, theseChannels[i])), encoder);
+                                    for(RoomClientTuple r: clientRooms)
+                                    {
+                                        if(r.getRoomID() == theseIDs[i])
+                                        {
+                                            aChannel = r.getCChannel();
+                                        }
+                                    }
+                                    sendMessage((""+deets[1]+": "+deets[2]+"\n"), aChannel, encoder);
                                 }
 
                             }

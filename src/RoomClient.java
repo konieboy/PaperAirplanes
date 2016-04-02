@@ -63,12 +63,17 @@ public class RoomClient{
         		System.out.println(e);
         	}
 
-            //Getting the room channel
+            //Initializing room on server
             try{
     			output.writeBytes(":-:roomChannel "+myID);
     		}catch(IOException e){
     			System.out.println("IO exception");
     		}
+            try {
+                Thread.sleep(2000);                 //1000 milliseconds is one second.
+            } catch(InterruptedException ex) {
+                Thread.currentThread().interrupt();
+            }
             try{
                 output.writeBytes(":-:setChatChannel "+roomID+" "+clientName+ " "+myID);
             }catch(IOException e){

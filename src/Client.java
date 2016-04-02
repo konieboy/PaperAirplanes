@@ -44,7 +44,7 @@ public class Client
              Runtime r = Runtime.getRuntime();
 			 String[] users = userAndFriend.split(" ");
 
-			 commands += " "+ users[0] + " "  + users[2] + " " + users[3];			//users[3] is actually the roomID
+			 commands += " "+ users[0] + " "  + users[2] + " " + users[3] + " " + users[4];			//users[3] is actually the roomID users[4] is clientRoomID
 			 System.out.println(commands);
  		 	 String[] cmdArray = {"gnome-terminal", "-e", commands + " ; $SHELL"};
              r.exec(cmdArray).waitFor();
@@ -107,7 +107,7 @@ public class Client
 			System.out.println("Launching new chat room...");
 			//System.exit(0);
 			String[] temp = line.split(" ");
-			launchTerminal(temp[0] + " to " + userProfile.getUserName()+" "+temp[1], "java RoomClient "+serverIPAddress + " "+portNumber);
+			launchTerminal(temp[0] + " to " + userProfile.getUserName()+" "+temp[1] + " "+ temp[2], "java RoomClient "+serverIPAddress + " "+portNumber);
 		}
 		else
 		{
