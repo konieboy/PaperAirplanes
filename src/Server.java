@@ -324,14 +324,20 @@ public class Server
                                 line = line.replace(":-:roomadd ","");
                                 String[] addThis = line.split(" ");
                                 //make sure friend is online before sending chat request
+                                User friend = null;
                                 for(int i = 0; i < usersOnline.size(); i++)
                                 {
                                     if(usersOnline.get(i).getUserName().equals(addThis[0]))
                                     {
-                                        User friend = usersOnline.get(i);
+                                        friend = usersOnline.get(i);
                                         String msg = "/request from " + addThis[1] + " to " + line + " " + addThis[1] + " "+(++clientRoomID)+"\n";
                                         System.out.println(msg);
                                         sendMessage(msg, friend.getCChannel(), encoder);
+                                    }
+                                }
+                                for(RoomServer r: currentRooms){
+                                    if(r.getRoomID() == Integer.parseInt(addThis[1])){
+                                        r.addUser(friend, 0);
                                     }
                                 }
                             }
@@ -411,7 +417,7 @@ public class Server
         }catch(FileNotFoundException e){
             return false;
         }catch(Exception m){
-            return false; 
+            return false;
         }
     }
 
