@@ -26,6 +26,7 @@ public class Server
     private static int BUFFERSIZE = 256;
     private static final String filePath = "users/";
     private static int roomID = 0;
+    private static String host = "localhost";
 
     //Return false: not in list of registeredUsers
     //Return true: in list of registeredUsers
@@ -273,10 +274,29 @@ public class Server
                             }
                             else if(line.contains("/room ")){
                                 line = line.replace("/room ","");
+                                String[] deets = line.split(":-:");         //RoomID ClientName Message
+                                int[] theseChannels;
+                                for(RoomServer r: currentRooms)
+                                {
+                                    if(r.getRoomID() == Integer.parseInt(deets[0]))
+                                    {
+                                        theseChannels = r.getChannels();
+                                    }
+                                }
+                                /*
+                                    BRENDANWASHERE
+                                    1. Implement roomClientID
+                                    2. Implement roomClientTuple
+                                        a. Tuple has ID and SocketChannel
+                                */
+                                for(int i=0;i<theseChannels.length;i++)
+                                {
+                                    sendMessage(""+deets[1]+": "+deets[2]+"\n", new SocketChannel(host, theseChannels[i]), encoder);
+                                }
 
                             }
                             else if(line.contains("/roomChannel")){
-                                sendMessage(""+cchannel.socket().getPort()+"\n", cchannel, encoder);
+                                sendMessage(cchannel, cchannel, encoder);
                             }
                             else if(line.contains("/setChatChannel ")){
                                 line = line.replace("/setChatChannel ","");
@@ -492,5 +512,14 @@ public class Server
         return user.printFriends();
     }
 
+    class RoomClientTuple{
 
+        int roomClientID;
+        SocketChannel cchannel;
+
+        public RoomClientTuple(int roomClientID, SocketChannel cchannel){
+            this.roomClientID = roomClientID;
+            this.cchannel = cchannel;
+        }
+    }
 }

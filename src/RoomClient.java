@@ -150,7 +150,7 @@ public class RoomClient{
 	public static void processUserInput(String lineIn){
 		//System.out.println(lineIn);
 		try{
-			output.writeBytes("/room " + roomID + " " + lineIn);
+			output.writeBytes("/room " + roomID + ":-:" + clientName + ":-:" + lineIn);
 		}catch(IOException e){
 			System.out.println("IO exception");
 		}

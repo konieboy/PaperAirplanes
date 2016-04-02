@@ -34,6 +34,17 @@ public class RoomServer
         }
     }
 
+    public int[] getChannels()
+    {
+        int[] channels = new int[userList.size()];
+        int i=0;
+        for(tuple t: userList)
+        {
+            channels[i] = t.getChannel();
+            i++;
+        }
+        return channels;
+    }
     public void closeRoomServer()
     {
 
