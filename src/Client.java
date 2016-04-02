@@ -28,10 +28,14 @@ import java.util.concurrent.*;
 
 public class Client
 {
-	 static Socket clientSocket = null;
+	static Socket clientSocket = null;
 	 static DataOutputStream output = null;
 	 static BufferedReader input = null;
 	 static User userProfile = null;
+
+	static String serverIPAddress;
+	static int portNumber;
+
 
 	 public static void launchTerminal (String userAndFriend, String commands)
      {
@@ -40,7 +44,8 @@ public class Client
              Runtime r = Runtime.getRuntime();
 			 String[] users = userAndFriend.split(" ");
 
-			 commands +=  users[0] + " "  + users[2];
+			 commands += " "+ users[0] + " "  + users[2] + " " + users[3];			//users[3] is actually the roomID
+			 System.out.println(commands);
  		 	 String[] cmdArray = {"gnome-terminal", "-e", commands + " ; $SHELL"};
              r.exec(cmdArray).waitFor();
          }
@@ -93,14 +98,15 @@ public class Client
 			line = line.replace("/request from ","");
 			System.out.println("Launching new chat room...");
 			//System.exit(0);
-			launchTerminal(line, "java RoomClient ");
+			launchTerminal(line, "java RoomClient "+serverIPAddress + " "+portNumber);
 		}
 		else if (line.contains("/connect to a chat room "))
 		{
 			line = line.replace("/connect to a chat room ","");
 			System.out.println("Launching new chat room...");
 			//System.exit(0);
-			launchTerminal(userProfile.getUserName() + " to " + line, "java RoomClient ");
+			String[] temp = line.split(" ");
+			launchTerminal(temp[0] + " to " + userProfile.getUserName()+" "+temp[1], "java RoomClient "+serverIPAddress + " "+portNumber);
 		}
 		else
 		{
@@ -123,16 +129,8 @@ public class Client
 		return line;
 	}
 
-	public static void startRoomClient(int roomServerID){
-		//RoomClient roomClient = new RoomClient(roomServerID);
-	}
-
 	public static void main(String[] args)
 	{
-
-		String serverIPAdress;
-		int portNumber;
-
 
 		BufferedReader  userInput = new BufferedReader(new InputStreamReader(System.in));
 		ExecutorService threadPool = Executors.newFixedThreadPool(2);
@@ -144,14 +142,14 @@ public class Client
             System.exit(0);
         }
 
-        serverIPAdress = args[0];
+        serverIPAddress = args[0];
         portNumber = Integer.parseInt(args[1]);
 
 		System.out.println("Welcome to paper airplanes!");
 
 		try
 		{
-			clientSocket = new Socket(serverIPAdress, portNumber); //for now we are only connecting to one computer
+			clientSocket = new Socket(serverIPAddress, portNumber); //for now we are only connecting to one computer
 			output = new DataOutputStream(clientSocket.getOutputStream());
 			input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 		}catch (IOException e)

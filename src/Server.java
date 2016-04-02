@@ -137,6 +137,9 @@ public class Server
                                 }catch(NullPointerException b)
                                 {
                                     System.out.println("User not created");
+                                }catch(Exception j)
+                                {
+                                    System.out.println("");
                                 }
                                 key.cancel();  //deregister the socket
                                 continue;
@@ -161,7 +164,7 @@ public class Server
                                 {
 
                                     //set up room server
-                                    RoomServer roomServer = new RoomServer(++roomID, 0, getUser(cchannel.socket().getPort()));
+                                    currentRooms.add(new RoomServer(++roomID, 0, getUser(cchannel.socket().getPort()), getUserFromName(line)));
                                     Boolean flag = false;
                                     User friend;
                                     //make sure friend is online before sending chat request
@@ -173,7 +176,7 @@ public class Server
                                             friend = usersOnline.get(i);
                                             flag = true;
                                             System.out.println("MADE IT TO HERE");
-                                            String msg = "/request from " + getUser(cchannel.socket().getPort()).getUserName() + " to " + line + "\n";
+                                            String msg = "/request from " + getUser(cchannel.socket().getPort()).getUserName() + " to " + line + " " + roomID + "\n";
                                             System.out.println(msg);
                                             sendMessage(msg, friend.getCChannel(), encoder);
                                         }
@@ -188,7 +191,7 @@ public class Server
                                     //if he is there then send a message to his client
 
                                     //send message to client to open up new terminal window with clientroom
-                                    sendMessage(("/connect to a chat room " + line + "\n"), cchannel, encoder);
+                                    sendMessage(("/connect to a chat room " + line + " "+ roomID+  "\n"), cchannel, encoder);
 
                                     //String myScript = "java Client";
                                         //launchTerminal(("Chat with " + line), "java Client");
@@ -268,20 +271,40 @@ public class Server
                                     sendMessage("User login has failed!\n", cchannel, encoder);
                                 }
                             }
+                            else if(line.contains("/room ")){
+                                line = line.replace("/room ","");
+
+                            }
+                            else if(line.contains("/roomChannel")){
+                                sendMessage(""+cchannel.socket().getPort()+"\n", cchannel, encoder);
+                            }
+                            else if(line.contains("/setChatChannel ")){
+                                line = line.replace("/setChatChannel ","");
+                                String[] roomUserInfo = line.split(" ");
+                                for(RoomServer r: currentRooms){
+                                    if(r.getRoomID() == Integer.parseInt(roomUserInfo[0])){
+                                        r.initUserChannels(roomUserInfo[1], Integer.parseInt(roomUserInfo[2]));
+                                    }
+                                }
+                            }
                             else if(line.contains("/quit")){
-                                User outUser = getUser(cchannel.socket().getPort());
-                                String toFile = outUser.toString();
-                                try
-                                {
-                                    Writer wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath+outUser.getUserName()+".txt"), "UTF-8"));
-                                    wr.write(toFile);
-                                    wr.close();
+                                try{
+                                    User outUser = getUser(cchannel.socket().getPort());
+                                    String toFile = outUser.toString();
+                                    try
+                                    {
+                                        Writer wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath+outUser.getUserName()+".txt"), "UTF-8"));
+                                        wr.write(toFile);
+                                        wr.close();
+                                    }
+                                    catch(Exception f)
+                                    {
+                                        f.printStackTrace();
+                                    }
+                                    usersOnline.remove(outUser);
+                                }catch(Exception l){
+                                    System.out.println("");
                                 }
-                                catch(Exception f)
-                                {
-                                    f.printStackTrace();
-                                }
-                                usersOnline.remove(outUser);
                             }
                             else
                             {
@@ -333,6 +356,18 @@ public class Server
         for(User u: usersOnline)
         {
             if(u.getPortNumber() == portNumber)
+            {
+                return u;
+            }
+        }
+        return null;
+    }
+
+    public static User getUserFromName(String username)
+    {
+        for(User u: usersOnline)
+        {
+            if(u.getUserName().equals(username))
             {
                 return u;
             }
