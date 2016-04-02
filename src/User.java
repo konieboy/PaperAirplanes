@@ -21,7 +21,7 @@ import java.nio.channels.*;
  */
 public class User{
   private String username;
-  private String password;
+  private String password = "";
   private String passwordHash;
   private int portNumber;
   private SocketChannel cchannel;
@@ -125,7 +125,6 @@ public class User{
     public void initUser()
     {
         boolean validLogin = false;
-        String password = "";
         while (validLogin == false)
         {
             System.out.print("Enter your username: ");
