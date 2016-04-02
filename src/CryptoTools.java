@@ -37,10 +37,9 @@ public class CryptoTools{
 
     /**
      *  encryptString takes in a string and a key and returns an
-     *  encrypted string.
+     *  encrypted string in the form of a byte array in string format.
      */
     public String encryptString(String strIn, String keySeedIn) throws Exception{
-        //return new String(encryptMessage(strIn.getBytes(), keySeedIn));
         return Arrays.toString(decryptMessage(strIn.getBytes(), keySeedIn));
     }
 
@@ -55,8 +54,22 @@ public class CryptoTools{
         return ciphertext;
     }
 
+    /**
+     *  arrayStrToArray takes in a array printed in string format
+     *  and converts it to the byte array that it is representing.
+     */
     public byte[] arrayStrToArray(String strIn){
-        return new byte[10];
+        String strArr = strIn.replace("[", "");
+        strArr = strArr.replace("]", "");
+        strArr = strArr.replace(" ", "");
+        String[] strArray = strArr.split(",");
+
+        byte[] output = new byte[strArray.length];
+        for(int i = 0; i < output.length; i++){
+            output[i] = Byte.parseByte(strArray[i]);
+        }
+
+        return output;
     }
 
     public String decryptString(String strIn, String keySeedIn) throws Exception{
@@ -84,8 +97,7 @@ public class CryptoTools{
         byte[] salt = new byte[16];
         randNum.nextBytes(salt);
         String output = hashPasswordHelper(password, salt, iterations, 128);
-        //return password;        //For now
-        return output;        //for later
+        return output;
     }
 
     public String hashPasswordHelper(String password, byte[] salt, int iterations, int hashLength) throws Exception{
@@ -128,9 +140,7 @@ public class CryptoTools{
         byte[] calcedHash = keyFac.generateSecret(keySpec).getEncoded();
 
         String hashInStr = bytesToBase64(hashIn);
-        System.out.println(hashInStr);
         String calcedHashStr = bytesToBase64(calcedHash);
-        System.out.println(calcedHashStr);
 
         if(hashInStr.equals(calcedHashStr))
             return true;
