@@ -111,7 +111,7 @@ public class CryptoTools{
     public Boolean verifyPassword(String password, String saltyHash) throws Exception{
         byte[] salt = new byte[16];
         byte[] saltHashArr = base64toBytes(saltyHash);
-        byte[] hashIn = new byte[32];
+        byte[] hashIn = new byte[saltHashArr.length - salt.length];
 
         int arrCounter = 0;
         for(int i = 0; i < salt.length; i++){
@@ -128,11 +128,9 @@ public class CryptoTools{
         byte[] calcedHash = keyFac.generateSecret(keySpec).getEncoded();
 
         String hashInStr = bytesToBase64(hashIn);
+        System.out.println(hashInStr);
         String calcedHashStr = bytesToBase64(calcedHash);
-
-        // if(password.equals(saltyHash))
-        //     return true;
-        // return false;
+        System.out.println(calcedHashStr);
 
         if(hashInStr.equals(calcedHashStr))
             return true;
