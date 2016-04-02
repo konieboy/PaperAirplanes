@@ -21,6 +21,7 @@ import java.nio.channels.*;
  */
 public class User{
   private String username;
+  private String password;
   private String passwordHash;
   private int portNumber;
   private SocketChannel cchannel;
@@ -69,7 +70,7 @@ public class User{
     public String login()
     {
 
-        String info = (username + " " + passwordHash);
+        String info = (username + " " + password);
         return info;
     }
 
@@ -141,13 +142,6 @@ public class User{
             else{
                 validLogin = true;
             }
-
-        }
-        try{
-            CryptoTools crypto = new CryptoTools();
-            passwordHash = crypto.hashPassword(password);
-        }catch(Exception e){
-            e.printStackTrace();
         }
     }
 }

@@ -353,12 +353,14 @@ public class Server
     //Takes username and password, first checks if the user exists
     //If true, passwordHash is compared
     //If false, new user file is created
-    private static boolean checkUser(String username, String passwordHash){
+    private static boolean checkUser(String username, String password){
+
         try{
             //user exists
+            CryptoTools ct = new CryptoTools();
             BufferedReader br = new BufferedReader(new FileReader(filePath+username+".txt"));
             br.readLine();
-            if(passwordHash.equals(br.readLine())){
+            if(ct.verifyPassword(password, br.readLine())){
                 System.out.println("Login Successful");
                 return true;
             }
@@ -371,16 +373,27 @@ public class Server
         //the user does not exist
         }catch(FileNotFoundException fe){
             try{
+                CryptoTools ct = new CryptoTools();
                 Writer wr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filePath+username+".txt"), "UTF-8"));
                 wr.write(username+"\n");
-                wr.write(passwordHash+"\n");
+                wr.write(ct.hashPassword(password)+"\n");
                 System.out.println("Profile Created");
                 wr.close();
                 return true;
             }catch(IOException ie){
                 return false;
             }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+                return false;
+            }
         }catch(IOException ioe){
+            return false;
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
             return false;
         }
     }

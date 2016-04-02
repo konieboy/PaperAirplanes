@@ -97,13 +97,15 @@ public class CryptoTools{
         }
 
         String output = new String(outputArr);
-        return output;
+        byte[] utf8Output = output.getBytes("UTF8");
+        String outputString = new String(utf8Output, "UTF8");
+        return outputString;
     }
 
     public Boolean verifyPassword(String password, String saltyHash) throws Exception{
         byte[] salt = new byte[16];
         byte[] saltHashArr = saltyHash.getBytes();
-        byte[] hashIn = new byte[saltHashArr.length - salt.length];
+        byte[] hashIn = new byte[32];
 
         int arrCounter = 0;
         for(int i = 0; i < salt.length; i++){
@@ -113,6 +115,7 @@ public class CryptoTools{
             hashIn[i] = saltHashArr[arrCounter];
             arrCounter++;
         }
+        System.out.println(hashIn.length);
 
         PBEKeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt, iterations, 128);
         SecretKeyFactory keyFac = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");

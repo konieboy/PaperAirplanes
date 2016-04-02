@@ -62,7 +62,7 @@ public class Client
 			String line = userInput.readLine();
 			return line;
 		}catch(Exception e){
-			System.out.println("Something went wrong :(");
+			e.printStackTrace();
 		}return "";
 	}
 
@@ -79,7 +79,7 @@ public class Client
 
 		if (line.contains("User login has failed!"))
 		{
-			System.out.println("Something went wrong :(");
+			System.out.println("User login has failed!");
 			System.exit(0);
 		}
 		else if (line.contains("/usersOnline"))
@@ -118,7 +118,7 @@ public class Client
 				line = line + "\n" + tmpLine;
 			}
 		}catch(Exception e){
-			System.out.println("Something went wrong :(");
+			e.printStackTrace();
 		}
 		return line;
 	}
