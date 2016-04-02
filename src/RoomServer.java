@@ -26,10 +26,29 @@ public class RoomServer
 
     public void initUserClientID(String username, int userClientID)
     {
-        for(tuple t: userList){
+        for(tuple t: userList)
+        {
             if(username.equals(t.getName()))
             {
                 t.setClientID(userClientID);
+            }
+        }
+    }
+
+    //Adding a user to a room
+    public void addUser(User user, int userClientID)
+    {
+        userList.add(new tuple(user, userClientID));
+    }
+
+    //removeUser from room server
+    public void removeUser(User user, int userClientID)
+    {
+        for(tuple t: userList)
+        {
+            if(user.getUserName().equals(t.getName()))
+            {
+                userList.remove(t);
             }
         }
     }

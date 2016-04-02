@@ -152,7 +152,12 @@ public class RoomClient{
 	public static void processUserInput(String lineIn){
 		//System.out.println(lineIn);
 		try{
-			output.writeBytes(":-:room " + roomID + ":-:" + clientName + ":-:" + lineIn);
+            if(lineIn.contains("/add ")){
+                lineIn = lineIn.replace("/add ","");
+                output.writeBytes(":-:roomadd " + lineIn + " " + roomID);
+            }else{
+                output.writeBytes(":-:room " + roomID + ":-:" + clientName + ":-:" + lineIn);
+            }
 		}catch(IOException e){
 			System.out.println("IO exception");
 		}

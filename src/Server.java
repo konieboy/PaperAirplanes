@@ -319,7 +319,21 @@ public class Server
                                     }
                                     sendMessage((""+deets[1]+": "+deets[2]+"\n"), aChannel, encoder);
                                 }
-
+                            }
+                            else if(line.contains(":-:roomadd ")){
+                                line = line.replace(":-:roomadd ","");
+                                String[] addThis = line.split(" ");
+                                //make sure friend is online before sending chat request
+                                for(int i = 0; i < usersOnline.size(); i++)
+                                {
+                                    if(usersOnline.get(i).getUserName().equals(addThis[0]))
+                                    {
+                                        User friend = usersOnline.get(i);
+                                        String msg = "/request from " + addThis[1] + " to " + line + " " + addThis[1] + " "+(++clientRoomID)+"\n";
+                                        System.out.println(msg);
+                                        sendMessage(msg, friend.getCChannel(), encoder);
+                                    }
+                                }
                             }
                             else if(line.contains(":-:roomChannel ")){
                                 line = line.replace(":-:roomChannel ","");
@@ -392,9 +406,12 @@ public class Server
     public static boolean userExists(String username){
         try{
             FileReader fr = new FileReader(filePath+username+".txt");
+            fr.close();
             return true;
         }catch(FileNotFoundException e){
             return false;
+        }catch(Exception m){
+            return false; 
         }
     }
 
@@ -443,6 +460,7 @@ public class Server
             CryptoTools ct = new CryptoTools();
             BufferedReader br = new BufferedReader(new FileReader(filePath+username+".txt"));
             br.readLine();
+            br.close();
             if(ct.verifyPassword(password, br.readLine())){
                 System.out.println("Login Successful");
                 return true;
