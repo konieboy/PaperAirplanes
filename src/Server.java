@@ -307,12 +307,6 @@ public class Server
                                         theseIDs = r.getClientIDs();
                                     }
                                 }
-                                /*
-                                    BRENDANWASHERE
-                                    1. Implement roomClientID
-                                    2. Implement roomClientTuple
-                                        a. Tuple has ID and SocketChannel
-                                */
                                 SocketChannel aChannel = null;
                                 for(int i=0;i<theseIDs.length;i++)
                                 {

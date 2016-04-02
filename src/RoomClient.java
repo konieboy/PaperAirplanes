@@ -31,8 +31,8 @@ public class RoomClient{
     public static void main(String [] args){
         Scanner reader = new Scanner(System.in);
         try{
-            clientName = (args[2]);
-            friendName = (args[3]);
+            clientName = (args[3]);
+            friendName = (args[2]);
             roomID = Integer.parseInt(args[4]);
             myID = Integer.parseInt(args[5]);
             System.out.println(clientName +": Wait for " +friendName + " to connect...");
@@ -116,7 +116,8 @@ public class RoomClient{
         			}catch(Exception e){
         				System.out.println("Task interrupted!");
         			}
-        			processUserInput(lastLine);
+                    if(!lastLine.equals(""))
+                        processUserInput(lastLine);
         		}if(serverInputFuture.isDone()){	//Process input from server if it gets something
         			//process server input
         			doneProcessingServerInput = false;
