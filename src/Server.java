@@ -471,6 +471,29 @@ public class Server
                     				System.out.println("Problem getting file");
                     			}
                             }
+                            else if(line.contains("/files")){                   //Executes ls, then reads the temp file and prints the output to the server
+                               try{
+                                  Runtime.getRuntime().exec(new String[]{"bash","-c","ls serverFiles > /tmp/tmp.txt"});
+                               }catch(Exception e){
+                                  System.out.println("Error executing ls");
+                                  sendMessage("Error executing ls\n", cchannel, encoder);
+                               }
+                               Thread.sleep(100);
+                               //Reading and sending file
+                               try{
+                                  FileReader fr = new FileReader("/tmp/tmp.txt");
+                                  BufferedReader br = new BufferedReader(fr);
+                                  String bLine = br.readLine();
+                                  sendMessage("\nFiles:\n", cchannel, encoder);
+                                  while(bLine != null){
+                                     sendMessage(bLine + '\n', cchannel, encoder);
+                                     bLine = br.readLine();
+                                  }
+                               }catch(IOException e){
+                                  System.out.println("Error while reading the list");
+                                  sendMessage("Error while reading the list\n", cchannel, encoder);
+                               }
+                            }
                             else if(line.contains("/quit")){
                                 try{
                                     User outUser = getUser(cchannel.socket().getPort());
