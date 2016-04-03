@@ -11,6 +11,8 @@ import javax.xml.bind.DatatypeConverter;
 /**
  *  CryptoTools class is the basis for all crypto related parts of the
  *  chat protocol.
+ *  made with help from Kyle Sutherland's F2015 CPSC418 assignments
+ *  @author Kyle Sutherland
  */
 
 public class CryptoTools{
