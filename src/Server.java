@@ -26,7 +26,7 @@ public class Server
     private static ArrayList<RoomClientTuple> clientRooms = new ArrayList<RoomClientTuple>();
     private static int BUFFERSIZE = 256;
     private static final String filePath = "users/";
-    private static final String upFilePath = "files/";
+    private static final String upFilePath = "serverFiles/";
     private static int roomID = 0;
     private static int clientRoomID = 0;
     private static String host = "localhost";
@@ -446,6 +446,31 @@ public class Server
                                    System.out.println("File error");
                                 }
                            }
+                           else if(line.contains("/upload ")){
+                               line = line.replace("/upload ","");
+                               try{
+                   				//Get message size from server
+                   				String[] tempStrings = line.split(":-:");
+                   				int size = Integer.parseInt(tempStrings[1]);
+                                String filename = upFilePath+tempStrings[0];
+                   				System.out.println("File Size is: "+ size);
+                   				//Get file data from server
+                   				tempStrings  = tempStrings[2].replace("[","").replace("]","").trim().split(", ");
+                   				byte[] msg = new byte[size];
+                   				for(int i=0; i<size;i++){
+                   		 			msg[i] = Byte.parseByte(tempStrings[i]);
+                   				}
+                   				//Write file to disk
+                   				FileOutputStream outFile = new FileOutputStream(filename);
+                   				outFile.write(msg);
+                   				outFile.close();
+
+                   				System.out.println(""+filename+" has been downloaded.");
+                    			}catch(Exception e){
+                    				e.printStackTrace();
+                    				System.out.println("Problem getting file");
+                    			}
+                            }
                             else if(line.contains("/quit")){
                                 try{
                                     User outUser = getUser(cchannel.socket().getPort());

@@ -34,6 +34,7 @@ public class Client
 	 static DataOutputStream output = null;
 	 static BufferedReader input = null;
 	 static User userProfile = null;
+	 static FileInputStream infile = null;
 
 	static String serverIPAddress;
 	static int portNumber;
@@ -77,7 +78,31 @@ public class Client
 	public static void processUserInput(String lineIn){
 		//System.out.println(lineIn);
 		try{
-			output.writeBytes(lineIn);
+			if(lineIn.contains("/upload "))
+			{
+				//Get filename from client
+				lineIn = lineIn.replace("/upload ","");
+				String filename = "userFiles/" + lineIn;
+				try{
+					infile = new FileInputStream(filename.trim());
+				}catch(Exception e){
+					output.writeBytes("Error in opening file " + filename);
+				}
+				try{
+					byte[] msg = new byte[infile.available()];
+					int read_bytes = infile.read(msg);
+					//Send message size to client
+					output.writeBytes("/upload "+lineIn + ":-:" + Integer.toString(read_bytes) +":-:" + Arrays.toString(msg)+'\n');
+					//sent message data to client
+					System.out.println("File sent");
+				}catch(Exception e){
+				   System.out.println("File error");
+				}
+			}
+			else
+			{
+				output.writeBytes(lineIn);
+			}
 		}catch(IOException e){
 			System.out.println("IO exception");
 		}
