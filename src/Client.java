@@ -65,7 +65,7 @@ public class Client
 	public static String userInputLoop(BufferedReader userInput){
 		try
 		{
-			System.out.print("Paper Planes: ");
+			System.out.print("Paper Airplanes: ");
 			String line = userInput.readLine();
 			line = line.replace(":-:userdata","");
 			return line;

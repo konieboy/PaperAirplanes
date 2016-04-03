@@ -57,7 +57,9 @@ public class RoomClient{
         }
 
         String lastLine = "";
-        System.out.println("Enter /chat if you want to accept a chat with " + friendName + ". Type /quit to exit the chat:\n");
+        System.out.println("Enter /chat if you want to accept a chat with " + friendName + ". \nType /quit to exit the chat.");
+        System.out.println("Type /chat 'key' where key is a random string that your chat partner knows and types as well.");
+        System.out.print("Paper Airplanes: ");
         lastLine = reader.nextLine();
         if(lastLine.contains("/chat")){
             key = lastLine.replace("/chat ","");
@@ -158,7 +160,7 @@ public class RoomClient{
     public static String userInputLoop(BufferedReader userInput){
 		try
 		{
-			System.out.print("Paper Planes: ");
+			System.out.print("Paper Airplanes: ");
 			String line = userInput.readLine();
 			return line;
 		}catch(Exception e){
@@ -188,8 +190,7 @@ public class RoomClient{
                     output.writeBytes(":-:room " + roomID + ":-:" + clientName + ":-:" + lineIn);
                 }catch(Exception e)
                 {
-                    e.printStackTrace();
-                    System.out.println("Message send error");
+                    System.out.println("Message send error, most likely encryption failure");
                 }
             }
 		}catch(IOException e){
@@ -209,8 +210,7 @@ public class RoomClient{
         }
         catch(Exception e)
         {
-            e.printStackTrace();
-            System.out.println("Error decrypting message");
+            System.out.println("Error decrypting message, most likely you are not using the right key");
         }
 		System.out.println(line);
 

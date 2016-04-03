@@ -42,7 +42,6 @@ public class CryptoTools{
      *  encrypted string in the form of a byte array in string format.
      */
     public String encryptString(String strIn, String keySeedIn) throws Exception{
-        //return Arrays.toString(encryptMessage(strIn.getBytes(), keySeedIn));
         return bytesToBase64(encryptMessage(strIn.getBytes(), keySeedIn));
     }
 
@@ -58,30 +57,11 @@ public class CryptoTools{
     }
 
     /**
-     *  arrayStrToArray takes in a array printed in string format
-     *  and converts it to the byte array that it is representing.
-     */
-    public byte[] arrayStrToArray(String strIn){
-        String strArr = strIn.replace("[", "");
-        strArr = strArr.replace("]", "");
-        strArr = strArr.replace(" ", "");
-        String[] strArray = strArr.split(",");
-
-        byte[] output = new byte[strArray.length];
-        for(int i = 0; i < output.length; i++){
-            output[i] = Byte.parseByte(strArray[i]);
-        }
-
-        return output;
-    }
-
-    /**
      *  decryptString takes in a string and a key and decrypts the string.
      *  the string it takes in should be a string representation of a
      *  string encrypted with the same key.
      */
     public String decryptString(String strIn, String keySeedIn) throws Exception{
-        //byte[] strArray = arrayStrToArray(strIn);
         byte[] strArray = base64toBytes(strIn);
         return new String(decryptMessage(strArray, keySeedIn));
     }
