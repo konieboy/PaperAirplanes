@@ -26,6 +26,7 @@ public class Server
     private static ArrayList<RoomClientTuple> clientRooms = new ArrayList<RoomClientTuple>();
     private static int BUFFERSIZE = 256;
     private static final String filePath = "users/";
+    private static final String upFilePath = "files/";
     private static int roomID = 0;
     private static int clientRoomID = 0;
     private static String host = "localhost";
@@ -424,6 +425,27 @@ public class Server
                                     }
                                 }
                             }
+                            else if (line.contains("/get ")){
+                                //Get filename from client
+                                line = line.replace("/get ","");
+                                String filename = upFilePath + line;
+                                try{
+                                    infile = new FileInputStream(filename.trim());
+                                }catch(Exception e){
+                                    sendMessage("Error in opening file " + filename, cchannel, encoder);
+                                }
+                                try{
+                                    sendMessage("/file "+line + "\n", cchannel, encoder);
+                                    byte[] msg = new byte[infile.available()];
+                                    int read_bytes = infile.read(msg);
+                                    //Send message size to client
+                                    sendMessage((Integer.toString(read_bytes) +":-:" + Arrays.toString(msg)+  '\n'), cchannel, encoder);
+                                    //sent message data to client
+                                    System.out.println("File sent");
+                                }catch(Exception e){
+                                   System.out.println("File error");
+                                }
+                           }
                             else if(line.contains("/quit")){
                                 try{
                                     User outUser = getUser(cchannel.socket().getPort());

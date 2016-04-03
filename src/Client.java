@@ -111,6 +111,32 @@ public class Client
 			String[] temp = line.split(" ");
 			launchTerminal(temp[0] + " to " + userProfile.getUserName()+" "+temp[1] + " "+ temp[2], "java RoomClient "+serverIPAddress + " "+portNumber);
 		}
+		else if(line.contains("/file ")){
+			line = line.replace("/file ","");
+			try{
+				//Get message size from server
+				String inInt = input.readLine();
+				String[] tempStrings = inInt.split(":-:");
+				int size = Integer.parseInt(tempStrings[0]);
+				System.out.println("File Size is: "+ size);
+				//Get file data from server
+				tempStrings  = tempStrings[1].replace("[","").replace("]","").split(", ");
+				byte[] msg = new byte[size];
+				for(int i=0; i<size;i++){
+		 			msg[i] = Byte.parseByte(tempStrings[i]);
+				}
+				//Write file to disk
+				String filename = "downloads/"+line;
+				FileOutputStream outFile = new FileOutputStream(filename);
+				outFile.write(msg);
+				outFile.close();
+
+				System.out.println("File "+line+" has been downloaded.");
+			}catch(Exception e){
+				e.printStackTrace();
+				System.out.println("Problem getting file");
+			}
+		}
 		else
 		{
 			System.out.println(line);
@@ -152,12 +178,13 @@ public class Client
 
 		try
 		{
-			clientSocket = new Socket(serverIPAddress, portNumber); //for now we are only connecting to one computer
+			clientSocket = new Socket(serverIPAddress, portNumber);
 			output = new DataOutputStream(clientSocket.getOutputStream());
 			input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 		}catch (IOException e)
 		{
 			System.out.println(e);
+			System.exit(0);
 		}
 
 		//Initialize the user
