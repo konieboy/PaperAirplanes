@@ -15,6 +15,13 @@ import java.util.concurrent.*;
  *  this window are specific to the current room.
  */
 
+ /*
+ *  Commands:
+ *  /add user
+ *  /quit
+ *  Just type to send message
+ */
+
 
 public class RoomClient{
 
@@ -155,7 +162,13 @@ public class RoomClient{
             if(lineIn.contains("/add ")){
                 lineIn = lineIn.replace("/add ","");
                 output.writeBytes(":-:roomadd " + lineIn + " " + roomID);
-            }else{
+            }
+            else if(lineIn.contains("/quit"))
+            {
+                    output.writeBytes(":-:roomquit "+ myID + " " + roomID);
+            }
+            else
+            {
                 output.writeBytes(":-:room " + roomID + ":-:" + clientName + ":-:" + lineIn);
             }
 		}catch(IOException e){
