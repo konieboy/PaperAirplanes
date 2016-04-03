@@ -193,7 +193,8 @@ public class Server
                                     //if he is there then send a message to his client
 
                                     //send message to client to open up new terminal window with clientroom
-                                    sendMessage(("/connect to a chat room " + line + " "+ roomID+ " "+ (++clientRoomID)+"\n"), cchannel, encoder);
+                                    clientRoomID++;
+                                    sendMessage(("/connect to a chat room " + line + " "+ roomID+ " "+ (clientRoomID)+"\n"), cchannel, encoder);
 
                                     //String myScript = "java Client";
                                         //launchTerminal(("Chat with " + line), "java Client");
@@ -330,7 +331,8 @@ public class Server
                                     if(usersOnline.get(i).getUserName().equals(addThis[0]))
                                     {
                                         friend = usersOnline.get(i);
-                                        String msg = "/request from " + addThis[1] + " to " + line + " " + addThis[1] + " "+(++clientRoomID)+"\n";
+                                        clientRoomID++;
+                                        String msg = "/request from " + addThis[1] + " to " + line + " " + addThis[1] + " "+(clientRoomID)+"\n";
                                         System.out.println(msg);
                                         sendMessage(msg, friend.getCChannel(), encoder);
                                     }
@@ -466,15 +468,15 @@ public class Server
             CryptoTools ct = new CryptoTools();
             BufferedReader br = new BufferedReader(new FileReader(filePath+username+".txt"));
             br.readLine();
-            br.close();
             if(ct.verifyPassword(password, br.readLine())){
                 System.out.println("Login Successful");
+                br.close();
                 return true;
             }
             //user password is wrong
             else{
                 System.out.println("Scum user couldn't log in");
-
+                br.close();
                 return false;
             }
         //the user does not exist
