@@ -25,6 +25,7 @@ import java.util.concurrent.*;
   *  /remove "userName"		           -- delete a friend from your friend
   *  /listfriends 		               -- show friends
   *	 /public "publicName"			   -- Join a public chat
+  *  /makepublic "publicName"		   -- Make a new public chat under that name
   */
 
 public class Client

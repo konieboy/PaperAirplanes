@@ -60,6 +60,7 @@ public class Server
 
         //PUBLIC ROOM INIT
         currentRooms.add(new RoomServer(++roomID, 1, "General"));
+        currentRooms.add(new RoomServer(++roomID, 1, "bman"));
 
         try
         {
@@ -312,6 +313,23 @@ public class Server
                                 }catch(Exception j)
                                 {
                                     System.out.println("Error joining public server");
+                                }
+                            }
+                            //Create a new public room
+                            else if(line.contains("/makepublic "))
+                            {
+                                line = line.replace("/makepublic ","");
+                                boolean exists = false;
+                                for(RoomServer r: currentRooms)
+                                {
+                                    if(r.getRoomName().equals(line))
+                                    {
+                                        exists = true;
+                                    }
+                                }
+                                if(!(line.equals("") || line.equals(" ") || exists==true))
+                                {
+                                    currentRooms.add(new RoomServer(++roomID, 1, line));
                                 }
                             }
                             //Contains login information

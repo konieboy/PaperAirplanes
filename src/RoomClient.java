@@ -34,8 +34,17 @@ public class RoomClient{
     private static int portNumber;
     private static int myID;
     private static int roomID;
+    private static String key = "";
+    private static CryptoTools crypto;
 
     public static void main(String [] args){
+        try{
+            crypto = new CryptoTools();
+        }catch(Exception b)
+        {
+            System.out.println("Crypto not initialized");
+        }
+
         Scanner reader = new Scanner(System.in);
         try{
             clientName = (args[3]);
@@ -50,7 +59,8 @@ public class RoomClient{
         String lastLine = "";
         System.out.println("Enter /chat if you want to accept a chat with " + friendName + ". Type /quit to exit the chat:\n");
         lastLine = reader.nextLine();
-        if(lastLine.equals("/chat")){
+        if(lastLine.contains("/chat")){
+            key = lastLine.replace("/chat ","");
             String serverIPAddress;
         	int portNumber;
 
@@ -169,7 +179,18 @@ public class RoomClient{
             }
             else
             {
-                output.writeBytes(":-:room " + roomID + ":-:" + clientName + ":-:" + lineIn);
+                try{
+                    if(!(key.equals("")))
+                    {
+                        lineIn = crypto.encryptString(lineIn, key);
+                        System.out.println(lineIn);
+                    }
+                    output.writeBytes(":-:room " + roomID + ":-:" + clientName + ":-:" + lineIn);
+                }catch(Exception e)
+                {
+                    e.printStackTrace();
+                    System.out.println("Message send error");
+                }
             }
 		}catch(IOException e){
 			System.out.println("IO exception");
@@ -178,7 +199,19 @@ public class RoomClient{
 
 	public static void processServerInput(String line){
 
-
+        try
+        {
+            if(!(key.equals("")))
+            {
+                line = crypto.decryptString(line, key);
+                System.out.println(line);
+            }
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+            System.out.println("Error decrypting message");
+        }
 		System.out.println(line);
 
 	}
