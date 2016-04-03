@@ -198,13 +198,13 @@ public class RoomClient{
 	}
 
 	public static void processServerInput(String line){
-
+        String[] splitThis = line.split(": ");
         try
         {
             if(!(key.equals("")))
             {
-                line = crypto.decryptString(line, key);
-                System.out.println(line);
+                line = crypto.decryptString(splitThis[1], key);
+                System.out.println(splitThis[0]+": "+ line);
             }
         }
         catch(Exception e)
