@@ -11,7 +11,7 @@ import javax.xml.bind.DatatypeConverter;
 /**
  *  CryptoTools class is the basis for all crypto related parts of the
  *  chat protocol.
- *  made with help from Kyle Sutherland's F2015 CPSC418 assignments
+ *  
  *  @author Kyle Sutherland
  */
 
@@ -39,7 +39,7 @@ public class CryptoTools{
 
     /**
      *  encryptString takes in a string and a key and returns an
-     *  encrypted string in the form of a byte array in string format.
+     *  encrypted string in the form of a base64 string of the byte array.
      */
     public String encryptString(String strIn, String keySeedIn) throws Exception{
         return bytesToBase64(encryptMessage(strIn.getBytes(), keySeedIn));
@@ -58,8 +58,8 @@ public class CryptoTools{
 
     /**
      *  decryptString takes in a string and a key and decrypts the string.
-     *  the string it takes in should be a string representation of a
-     *  string encrypted with the same key.
+     *  the string it takes in should be a base64 string representation of the
+     *  encrypted byte array
      */
     public String decryptString(String strIn, String keySeedIn) throws Exception{
         byte[] strArray = base64toBytes(strIn);
@@ -173,7 +173,6 @@ public class CryptoTools{
     public byte[] base64toBytes(String lineIn) throws Exception{
         return DatatypeConverter.parseBase64Binary(lineIn);
     }
-
 
     /**
      *  bytesToBase64 takes in a binary byte array and returns a
