@@ -42,7 +42,7 @@ public class CryptoTools{
      *  encrypted string in the form of a byte array in string format.
      */
     public String encryptString(String strIn, String keySeedIn) throws Exception{
-        return bytesToBase64(encryptMessage(strIn.getBytes(), keySeedIn));
+        return Arrays.toString(encryptMessage(strIn.getBytes(), keySeedIn));
     }
 
     /**
@@ -80,7 +80,7 @@ public class CryptoTools{
      *  string encrypted with the same key.
      */
     public String decryptString(String strIn, String keySeedIn) throws Exception{
-        byte[] strArray = base64toBytes(strIn);
+        byte[] strArray = arrayStrToArray(strIn);
         return new String(decryptMessage(strArray, keySeedIn));
     }
 
