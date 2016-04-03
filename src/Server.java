@@ -58,6 +58,9 @@ public class Server
 
         DataOutputStream clientWriter;
 
+        //PUBLIC ROOM INIT
+        currentRooms.add(new RoomServer(++roomID, 1, "General"));
+
         try
         {
            //trying to create new socket, default port for Project is 3265.
@@ -273,15 +276,43 @@ public class Server
                                 //printFriendList(cchannel, encoder);
 
                             }
-                            else if (line.contains("/friends" ))
+                            else if(line.contains("/friends" ))
                             {
                                 String friends = printFriendList(getUser(cchannel.socket().getPort()));
                                 sendMessage(friends, cchannel, encoder);
                             }
-                            else if (line.contains("/online" ))
+                            else if(line.contains("/online" ))
                             {
                                 String online = printOnlineUsers();
                                 sendMessage(online, cchannel, encoder);
+                            }
+                            //Joining a public chat
+                            else if(line.contains("/public "))
+                            {
+                                int roomID = -1;
+                                line = line.replace("/public ","");
+                                try{
+                                    for(RoomServer r: currentRooms)
+                                    {
+                                        if(r.getRoomName().equals(line));
+                                        {
+                                            roomID = r.getRoomID();
+                                            r.addUser(getUser(cchannel.socket().getPort()), 0);
+                                        }
+                                    }
+                                    if(!(roomID==-1))
+                                    {
+                                        clientRoomID++;
+                                        sendMessage(("/connect to a chat room " + line + " "+ roomID+ " "+ (clientRoomID)+"\n"), cchannel, encoder);
+                                    }
+                                    else
+                                    {
+                                        System.out.println("No room found under name: "+line);
+                                    }
+                                }catch(Exception j)
+                                {
+                                    System.out.println("Error joining public server");
+                                }
                             }
                             //Contains login information
                             else if(line.contains(":-:userdata"))
@@ -341,6 +372,24 @@ public class Server
                                     if(r.getRoomID() == Integer.parseInt(addThis[1])){
                                         r.addUser(friend, 0);
                                     }
+                                }
+                            }
+                            else if(line.contains(":-:roomquit "))
+                            {
+                                line = line.replace(":-:roomquit ","");
+                                String[] quitSplit = line.split(" ");           //ClientID, roomID
+                                try{
+                                    for(RoomServer s: currentRooms)
+                                    {
+                                            if(s.getRoomID() == Integer.parseInt(quitSplit[1]))
+                                            {
+                                                s.removeUser(Integer.parseInt(quitSplit[0]));
+                                            }
+                                    }
+                                }
+                                catch(Exception q)
+                                {
+                                    System.out.println("User not removed");
                                 }
                             }
                             else if(line.contains(":-:roomChannel ")){

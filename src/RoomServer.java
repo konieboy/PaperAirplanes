@@ -14,14 +14,24 @@ public class RoomServer
 {
     private int roomID;
     private int roomType; // 0 = private; 1 = public
+    private String roomName;    //For public chats
     private ArrayList<tuple> userList = new ArrayList<tuple>();
 
+    //For public chats with no initial users and a name
+    public RoomServer(int roomID, int roomType, String roomName){
+        this.roomID = roomID;
+        this.roomType = roomType;
+        this.roomName = roomName;
+    }
+
+    //For private chats
     public RoomServer(int roomID,int roomType, User user, User friend)
     {
         this.roomID = roomID;
         this.roomType = roomType;
         userList.add(new tuple(user,0));
         userList.add(new tuple(friend,0));
+        roomName = "";
     }
 
     public void initUserClientID(String username, int userClientID)
@@ -42,11 +52,11 @@ public class RoomServer
     }
 
     //removeUser from room server
-    public void removeUser(User user, int userClientID)
+    public void removeUser(int userClientID)
     {
         for(tuple t: userList)
         {
-            if(user.getUserName().equals(t.getName()))
+            if(t.getClientID() == userClientID)
             {
                 userList.remove(t);
             }
@@ -67,6 +77,10 @@ public class RoomServer
     public void closeRoomServer()
     {
 
+    }
+
+    public String getRoomName(){
+        return roomName;
     }
 
     public int getRoomID(){
