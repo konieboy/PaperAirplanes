@@ -62,7 +62,8 @@ public class RoomClient{
         System.out.print("Paper Airplanes: ");
         lastLine = reader.nextLine();
         if(lastLine.contains("/chat")){
-            key = lastLine.replace("/chat ","");
+            key = lastLine.replace("/chat","");
+            key = key.replace(" ","");
             String serverIPAddress;
         	int portNumber;
 
@@ -169,10 +170,9 @@ public class RoomClient{
 	}
 
 	public static void processUserInput(String lineIn){
-		//System.out.println(lineIn);
 		try{
             if(lineIn.contains("/add ")){
-                lineIn = lineIn.replace("/add ","");
+                lineIn = lineIn.replace("/add ","").trim();
                 output.writeBytes(":-:roomadd " + lineIn + " " + roomID);
             }
             else if(lineIn.contains("/quit"))
@@ -185,7 +185,6 @@ public class RoomClient{
                     if(!(key.equals("")))
                     {
                         lineIn = crypto.encryptString(lineIn, key);
-                        System.out.println(lineIn);
                     }
                     output.writeBytes(":-:room " + roomID + ":-:" + clientName + ":-:" + lineIn);
                 }catch(Exception e)
@@ -207,13 +206,15 @@ public class RoomClient{
                 line = crypto.decryptString(splitThis[1], key);
                 System.out.println(splitThis[0]+": "+ line);
             }
+            else
+            {
+                System.out.println(line);
+            }
         }
         catch(Exception e)
         {
             System.out.println("Error decrypting message, most likely you are not using the right key");
         }
-		System.out.println(line);
-
 	}
 
 	public static String serverInputLoop(BufferedReader input){
@@ -230,29 +231,4 @@ public class RoomClient{
 		}
 		return line;
 	}
-
-    public static void sendMessage(String msg)
-    {
-
-    }
-
-    public static byte[] receiveMessage()
-    {
-    return null;
-    }
-
-    public static boolean sendFile(String filename)
-    {
-    return false;
-    }
-
-    public static byte[] encrypt(String msg)
-    {
-    return null;
-    }
-
-    public static String decrypt(byte[] msg)
-    {
-    return null;
-    }
 }

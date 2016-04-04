@@ -60,8 +60,9 @@ public class Server
         DataOutputStream clientWriter;
 
         //PUBLIC ROOM INIT
-        currentRooms.add(new RoomServer(++roomID, 1, "General"));
-        currentRooms.add(new RoomServer(++roomID, 1, "bman"));
+        //String equals room name, caps-sensitive
+        currentRooms.add(new RoomServer(++roomID, 1, "general"));
+        currentRooms.add(new RoomServer(++roomID, 1, "testing"));
 
         try
         {
@@ -147,7 +148,7 @@ public class Server
                                     System.out.println("User not created");
                                 }catch(Exception j)
                                 {
-                                    System.out.println("");
+                                    System.out.println("Writer error");
                                 }
                                 key.cancel();  //deregister the socket
                                 continue;
@@ -228,7 +229,6 @@ public class Server
                                     {
                                         onlineFlag = true;
                                         friend = usersOnline.get(i);
-                                        //System.out.println("MADE IT TO HERE");
                                         String msg = line;
                                         System.out.println(msg);
                                         sendMessage(msg, friend.getCChannel(), encoder);
@@ -310,10 +310,12 @@ public class Server
                                     else
                                     {
                                         System.out.println("No room found under name: "+line);
+                                        sendMessage("No room found under name: "+line+"\n", cchannel, encoder);
                                     }
                                 }catch(Exception j)
                                 {
                                     System.out.println("Error joining public server");
+                                    sendMessage("Error joining public server\n", cchannel, encoder);
                                 }
                             }
                             //Create a new public room
@@ -444,6 +446,7 @@ public class Server
                                     System.out.println("File sent");
                                 }catch(Exception e){
                                    System.out.println("File error");
+                                   sendMessage("File error\n", cchannel, encoder);
                                 }
                            }
                            else if(line.contains("/upload ")){
@@ -467,8 +470,8 @@ public class Server
 
                    				System.out.println(""+filename+" has been downloaded.");
                     			}catch(Exception e){
-                    				e.printStackTrace();
                     				System.out.println("Problem getting file");
+                                    sendMessage("Poblem getting file\n",cchannel, encoder);
                     			}
                             }
                             else if(line.contains("/files")){                   //Executes ls, then reads the temp file and prints the output to the server
@@ -612,7 +615,7 @@ public class Server
             }
             //user password is wrong
             else{
-                System.out.println("Scum user couldn't log in");
+                System.out.println("User couldn't log in");
                 br.close();
                 return false;
             }
