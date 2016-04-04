@@ -21,29 +21,25 @@ import java.util.concurrent.*;
 /** Commands
   *  /quit 							   -- exit the program
   *  /connect "userName"               -- chat with a user from your friend list
-  *  /add "userName"    		       -- add a user to your friend list
+  *  /addfriend "userName"             -- add a user to your friend list
   *  /remove "userName"		           -- delete a friend from your friend
-  *  /online						   -- displays all current online users
-  *  /friends	 		               -- show friends
+  *  /listfriends 		               -- show friends
   *	 /public "publicName"			   -- Join a public chat
   *  /makepublic "publicName"		   -- Make a new public chat under that name
-  *  /upload <file>.<ext>			   -- Uploads a file to the Server
-  *  /get							   -- Downloads a file from the server
-  *  /files							   -- displays all files on the server
   */
 
 public class Client
 {
-	 static Socket clientSocket = null;
+	static Socket clientSocket = null;
 	 static DataOutputStream output = null;
 	 static BufferedReader input = null;
 	 static User userProfile = null;
 	 static FileInputStream infile = null;
 
-	 static String serverIPAddress;
-	 static int portNumber;
+	static String serverIPAddress;
+	static int portNumber;
 
-	//opens a new terminal and executes a command when it opens
+
 	 public static void launchTerminal (String userAndFriend, String commands)
      {
          try
@@ -51,7 +47,7 @@ public class Client
              Runtime r = Runtime.getRuntime();
 			 String[] users = userAndFriend.split(" ");
 
-			 commands += " "+ users[0] + " "  + users[2] + " " + users[3] + " " + users[4];	//users[3] is actually the roomID users[4] is clientRoomID
+			 commands += " "+ users[0] + " "  + users[2] + " " + users[3] + " " + users[4];			//users[3] is actually the roomID users[4] is clientRoomID
 			 System.out.println(commands);
  		 	 String[] cmdArray = {"gnome-terminal", "-e", commands + " ; $SHELL"};
              r.exec(cmdArray).waitFor();
@@ -66,8 +62,7 @@ public class Client
          }
 
      }
-     
-	//getting user input
+
 	public static String userInputLoop(BufferedReader userInput){
 		try
 		{
@@ -79,9 +74,9 @@ public class Client
 			e.printStackTrace();
 		}return "";
 	}
-	
-	//processing User input
+
 	public static void processUserInput(String lineIn){
+		//System.out.println(lineIn);
 		try{
 			if(lineIn.contains("/upload "))
 			{
@@ -112,8 +107,7 @@ public class Client
 			System.out.println("IO exception");
 		}
 	}
-	
-	//process input from server
+
 	public static void processServerInput(String line){
 
 		if (line.contains("User login has failed!"))
@@ -131,12 +125,14 @@ public class Client
 		{
 			line = line.replace("/request from ","");
 			System.out.println("Launching new chat room...");
+			//System.exit(0);
 			launchTerminal(line, "java RoomClient "+serverIPAddress + " "+portNumber);
 		}
 		else if (line.contains("/connect to a chat room "))
 		{
 			line = line.replace("/connect to a chat room ","");
 			System.out.println("Launching new chat room...");
+			//System.exit(0);
 			String[] temp = line.split(" ");
 			launchTerminal(temp[0] + " to " + userProfile.getUserName()+" "+temp[1] + " "+ temp[2], "java RoomClient "+serverIPAddress + " "+portNumber);
 		}
@@ -172,7 +168,6 @@ public class Client
 		}
 	}
 
-	//continually grabs another line
 	public static String serverInputLoop(BufferedReader input){
 		String line = "";
 		String tmpLine = "";
@@ -194,7 +189,6 @@ public class Client
 		BufferedReader  userInput = new BufferedReader(new InputStreamReader(System.in));
 		ExecutorService threadPool = Executors.newFixedThreadPool(2);
 
-		//command line args length checking
         if(args.length != 2)
         {
             System.out.println("Invalid Arguments");
@@ -207,7 +201,6 @@ public class Client
 
 		System.out.println("Welcome to paper airplanes!");
 
-		//network infrastructure instantiation
 		try
 		{
 			clientSocket = new Socket(serverIPAddress, portNumber);
@@ -222,8 +215,7 @@ public class Client
 		//Initialize the user
 		User user = new User();
 		userProfile = user;
-		
-		//login script
+
 		try{
 			output.writeBytes(":-:userdata "+user.login());
 		}catch(Exception e){
@@ -231,8 +223,6 @@ public class Client
 			System.exit(0);
 		}
 		String userName = user.getUserName();
-		
-		//Threading...
 		//Callable objects
 		Callable<String> userInputTask = () -> {
 			return userInputLoop(userInput);
@@ -249,8 +239,6 @@ public class Client
 		String lastLine = "";
 		Boolean doneProcessingServerInput = true;
 
-
-		//main while loop
 		while(!lastLine.equals("/quit")){
 			if(serverInputFuture.isDone() && doneProcessingServerInput){
 				serverInputFuture = threadPool.submit(serverInputTask);
@@ -259,11 +247,10 @@ public class Client
 				userInputFuture = threadPool.submit(userInputTask);
 			}
 
-			try{Thread.sleep(200);}catch(Exception e){} //wait loop just to keep order
-			
+
 			while(!userInputFuture.isDone() && !serverInputFuture.isDone());
 
-			
+			//If message loss occurs, add a delay here
 			if(userInputFuture.isDone() && !userInputFuture.isCancelled()){		//Process input from server if it gets something
 				//process user input
 				try{

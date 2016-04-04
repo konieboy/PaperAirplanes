@@ -31,14 +31,8 @@ public class Server
     private static int clientRoomID = 0;
     private static String host = "localhost";
 
-    //Return false: not in list of registeredUsers
-    //Return true: in list of registeredUsers
-
-
-
     public static void main(String args[])
     {
-
         if(args.length != 1)
         {
             System.out.println("Invalid Input");
@@ -56,7 +50,6 @@ public class Server
         CharBuffer cBuffer = null;
         int bytesSent, bytesRecv;     // number of bytes sent or received
         FileInputStream infile = null;
-
         DataOutputStream clientWriter;
 
         //PUBLIC ROOM INIT
@@ -89,7 +82,7 @@ public class Server
                     System.out.println("select() failed");
                     System.exit(1);
                 }
-            Thread.sleep(1000);
+            Thread.sleep(500);
                 // Get set of ready sockets
                 Set readyKeys = selector.selectedKeys();
                 Iterator readyItor = readyKeys.iterator();
@@ -115,7 +108,8 @@ public class Server
                         cchannel.register(selector, SelectionKey.OP_READ);
 
                     }
-                   else{    //Reading message
+                    //Reading message
+                    else{
                         SocketChannel cchannel = (SocketChannel)key.channel();
                         if (key.isReadable()){
                             Socket socket = cchannel.socket();
@@ -160,9 +154,13 @@ public class Server
                             line = cBuffer.toString();
                             System.out.println("TCP Client: " + line);
 
-                            //////**********************************
-                            //respond to client input
+                            //Server parses client input and decides what to do
 
+                            /** /connect [arg]
+                            *   Sends a request to a user specified in the [arg]
+                            *   User must be in the requesters friends list and online
+                            *   Opens a new chat window for both users
+                            */
                             if(line.contains("/connect "))
                             {
                                 line = line.replace("/connect ","");
@@ -214,29 +212,12 @@ public class Server
 
                                 }
                             }
-                            //detect that the client wants to add a new user to their friendslist
 
-                            else if(line.contains("/sendMessage "))
-                            {
-
-                                Boolean onlineFlag = false;
-                                User friend;
-                                line = line.replace("/sendMessage ","");
-
-                                for(int i = 0; i < usersOnline.size(); i++)
-                                {
-                                    if(usersOnline.get(i).getUserName().equals(line))
-                                    {
-                                        onlineFlag = true;
-                                        friend = usersOnline.get(i);
-                                        String msg = line;
-                                        System.out.println(msg);
-                                        sendMessage(msg, friend.getCChannel(), encoder);
-                                    }
-                                }
-
-                            }
-
+                            /** /add [arg]
+                            *   Adds a user to your friends list; user specified in the [arg]
+                            *   User must not already be in the requesters friends list
+                            *   Prints the users friends list if the request is a success
+                            */
                             else if(line.contains("/add "))
                             {
                             	line = line.replace("/add ","");
@@ -258,6 +239,11 @@ public class Server
                                 //printFriendList(cchannel, encoder);
 
                             }
+                            /** /remove [arg]
+                            *   Remove a user from your friends list; user specified in the [arg]
+                            *   User must already be in the requesters friends list
+                            *   Prints the users friends list if the request is a success
+                            */
                             else if(line.contains("/remove "))
                             {
                             	line = line.replace("/remove ","");
@@ -278,17 +264,26 @@ public class Server
                                 //printFriendList(cchannel, encoder);
 
                             }
+                            /** /friends
+                            *   Prints the users friends list if the request is a success
+                            */
                             else if(line.contains("/friends" ))
                             {
                                 String friends = printFriendList(getUser(cchannel.socket().getPort()));
                                 sendMessage(friends, cchannel, encoder);
                             }
+                            /** /friends
+                            *   Prints the users online in the server if the request is a success
+                            */
                             else if(line.contains("/online" ))
                             {
                                 String online = printOnlineUsers();
                                 sendMessage(online, cchannel, encoder);
                             }
-                            //Joining a public chat
+                            /** /public [arg]
+                            *   Adds the user to a premade chat room; room specified in the [arg]
+                            *   Launches a new window if successful
+                            */
                             else if(line.contains("/public "))
                             {
                                 int roomID = -1;
@@ -318,7 +313,11 @@ public class Server
                                     sendMessage("Error joining public server\n", cchannel, encoder);
                                 }
                             }
-                            //Create a new public room
+                            /** /makepublic [arg]
+                            *   creates a new public chat room; room name specified in the [arg]
+                            *   Launches a new window if successful
+                            *   Room must have a unused name
+                            */
                             else if(line.contains("/makepublic "))
                             {
                                 line = line.replace("/makepublic ","");
@@ -336,6 +335,7 @@ public class Server
                                 }
                             }
                             //Contains login information
+                            //:-: commands can not be accesed by the user manually
                             else if(line.contains(":-:userdata"))
                             {
                                 String[] up = line.split(" ");
@@ -427,6 +427,12 @@ public class Server
                                     }
                                 }
                             }
+
+                            /** /get [arg]
+                            *   Downloads a file from the server; file name specified in the [arg]
+                            *   File must have been uploaded by a user earlier
+                            *   Has a small file size limit
+                            */
                             else if (line.contains("/get ")){
                                 //Get filename from client
                                 line = line.replace("/get ","");
@@ -449,6 +455,11 @@ public class Server
                                    sendMessage("File error\n", cchannel, encoder);
                                 }
                            }
+                           /** /upload [arg]
+                           *   uploads a file from the server; file name specified in the [arg]
+                           *   File must have be in the userFile folder
+                           *   Has a small file size limit
+                           */
                            else if(line.contains("/upload ")){
                                line = line.replace("/upload ","");
                                try{
@@ -474,6 +485,9 @@ public class Server
                                     sendMessage("Poblem getting file\n",cchannel, encoder);
                     			}
                             }
+                            /** /files
+                            *   prints files name
+                            */
                             else if(line.contains("/files")){                   //Executes ls, then reads the temp file and prints the output to the server
                                try{
                                   Runtime.getRuntime().exec(new String[]{"bash","-c","ls serverFiles > /tmp/tmp.txt"});
@@ -497,6 +511,7 @@ public class Server
                                   sendMessage("Error while reading the list\n", cchannel, encoder);
                                }
                             }
+                            //exit
                             else if(line.contains("/quit")){
                                 try{
                                     User outUser = getUser(cchannel.socket().getPort());
@@ -588,6 +603,7 @@ public class Server
         return null;
     }
 
+    //prints list of all online users
     public static String printOnlineUsers()
     {
         String users = "/usersOnline" + "\n";
@@ -706,6 +722,7 @@ public class Server
         return user.printFriends();
     }
 
+    //tuple of roomClientIDs and CChannels for different users
     static class RoomClientTuple{
 
         int roomClientID;
