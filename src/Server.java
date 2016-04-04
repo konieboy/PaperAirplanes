@@ -89,7 +89,7 @@ public class Server
                     System.out.println("select() failed");
                     System.exit(1);
                 }
-            Thread.sleep(100);
+            Thread.sleep(1000);
                 // Get set of ready sockets
                 Set readyKeys = selector.selectedKeys();
                 Iterator readyItor = readyKeys.iterator();

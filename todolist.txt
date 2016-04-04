@@ -1,5 +1,3 @@
-encryption of login info
 File Transfer, all types
-private chat with invite only
-public chat
-encrypted message sending
+non '/' commands should report error
+if user hits /quit on main terminal it should close other terminals
